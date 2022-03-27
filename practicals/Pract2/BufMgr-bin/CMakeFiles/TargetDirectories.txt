@@ -1,0 +1,6 @@
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/CMakeFiles/minibase-bufmgr.dir
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/bufmgr/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/bufmgr/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract2/BufMgr-bin/bufmgr/CMakeFiles/bufmgr.dir

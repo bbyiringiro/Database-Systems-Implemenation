@@ -1,0 +1,6 @@
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/CMakeFiles/minibase-joins.dir
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/joins/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/joins/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract3/joins-bin/joins/CMakeFiles/joins.dir

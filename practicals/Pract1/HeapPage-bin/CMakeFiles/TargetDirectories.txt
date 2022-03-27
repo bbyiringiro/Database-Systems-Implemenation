@@ -1,0 +1,6 @@
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/CMakeFiles/minibase-heappage.dir
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/spacemgr/CMakeFiles/rebuild_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/spacemgr/CMakeFiles/edit_cache.dir
+/users/ms21jcbb/Practicals/DSI/Pract1/HeapPage-bin/spacemgr/CMakeFiles/spacemgr.dir
