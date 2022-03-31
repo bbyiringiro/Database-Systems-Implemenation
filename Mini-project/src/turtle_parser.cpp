@@ -98,3 +98,6 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
         return false;
     }
 }
+
+
+

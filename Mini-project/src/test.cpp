@@ -55,11 +55,10 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
 
     cout << "Query EValuations test" << endl;
 
-    int var = -1;
     // (?, ?, ?)
-    // Term term1 = Term(Term::TermType::NONE, "x");
-    // Term term2 = Term(Term::TermType::NONE, "y");
-    // Term term3 = Term(Term::TermType::NONE, "z");
+    // Term term1 = Term(Term::TermType::VAR, "x");
+    // Term term2 = Term(Term::TermType::VAR, "y");
+    // Term term3 = Term(Term::TermType::VAR, "z");
 
     // (s,p,o)
     // Term term1 = Term(Term::TermType::LITERAL,2);
@@ -69,48 +68,48 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
     //(s, p, ?) 
     // Term term1 = Term(Term::TermType::LITERAL,2);
     // Term term2 = Term(Term::TermType::LITERAL,1);
-    // Term term3 = Term(Term::TermType::NONE, "z");
+    // Term term3 = Term(Term::TermType::VAR, "z");
 
     // (s, ?, ?) 
     // Term term1 = Term(Term::TermType::LITERAL,1);
-    // Term term2 = Term(Term::TermType::NONE,"y");
-    // Term term3 = Term(Term::TermType::NONE, "z");
+    // Term term2 = Term(Term::TermType::VAR,"y");
+    // Term term3 = Term(Term::TermType::VAR, "z");
 
 
       // (?, p, o) 
-    // Term term1 = Term(Term::TermType::NONE,"x");
+    // Term term1 = Term(Term::TermType::VAR,"x");
     // Term term2 = Term(Term::TermType::LITERAL,3);
     // Term term3 = Term(Term::TermType::LITERAL, 4);
 
      // (?, ?, o) 
-    // Term term1 = Term(Term::TermType::NONE,"x");
-    // Term term2 = Term(Term::TermType::NONE,"y");
+    // Term term1 = Term(Term::TermType::VAR,"x");
+    // Term term2 = Term(Term::TermType::VAR,"y");
     // Term term3 = Term(Term::TermType::LITERAL, 2);
 
 
 
     // (?, ?, o) 
-    // Term term1 = Term(Term::TermType::NONE,"x");
-    // Term term2 = Term(Term::TermType::NONE,"y");
+    // Term term1 = Term(Term::TermType::VAR,"x");
+    // Term term2 = Term(Term::TermType::VAR,"y");
     // Term term3 = Term(Term::TermType::LITERAL, 2);
 
 
      // (s, ?, o) 
     // Term term1 = Term(Term::TermType::LITERAL,1);
-    // Term term2 = Term(Term::TermType::NONE,"y");
+    // Term term2 = Term(Term::TermType::VAR,"y");
     // Term term3 = Term(Term::TermType::LITERAL, 4);
     
     
     // (?, p, ?) 
-    // Term term1 = Term(Term::TermType::NONE,"x");
+    // Term term1 = Term(Term::TermType::VAR,"x");
     // Term term2 = Term(Term::TermType::LITERAL,1);
-    // Term term3 = Term(Term::TermType::NONE, "x");
+    // Term term3 = Term(Term::TermType::VAR, "x");
 
 
 
-    vector<RdfIndex::Triple> results= rdfIndex.evaluate(term1, term2, term3);
+    // vector<RdfIndex::Triple> results= rdfIndex.evaluate(term1, term2, term3);
 
-    for (auto & r: results) cout<<r <<endl;
+    // for (auto & r: results) cout<<r <<endl;
 
     
 

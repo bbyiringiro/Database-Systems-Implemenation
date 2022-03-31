@@ -4,6 +4,8 @@
 #include<map>
 #include<string>
 #include<algorithm>
+#include<fstream>
+
 
 
 
@@ -13,6 +15,9 @@
 #include "turtle_parser.h"
 #include "sparql_parser.h"
 #include "rdf_index.h"
+#include "sparql_parser.h"
+
+
 #include "test.h"
 
 
@@ -37,16 +42,6 @@ void register_commands()
     COMMANDS["QUIT"] = QUIT;
 }
 
-//   const static std::string RDF_TYPE;
-//   const static std::string RDF_FIRST;
-//   const static std::string RDF_REST;
-//   const static std::string RDF_NIL;
-// const std::string RDFVocabulary::RDF_TYPE = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
-// const std::string RDFVocabulary::RDF_FIRST = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>";
-// const std::string RDFVocabulary::RDF_REST = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>";
-// const std::string RDFVocabulary::RDF_NIL = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>";
-
-
 
 //TASK
 // - handle LOAD filename1 filename2 'file name'3
@@ -60,9 +55,24 @@ int main(int argc, char const *argv[])
     register_commands(); // registers allowed command for the CLI
     std::string input;
 
+    // std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/q01.txt");
+
+    // SparqlParser sparqlParser(&rdfIndex, _fin);
+    SparqlParser sparqlParser(res_2_id_map);
+
+
+
+    // std::string temps = "SELECT ?Xm WHERE {?X  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>             <http://swat.cse.lehigh.edu/onto/univ-bench.owl#GraduateStudent>  . ?X <http://swat.cse.lehigh.edu/onto/univ-bench.owl#takesCourse> <http://www.Department0.University0.edu/GraduateCourse0>          .}";
+    
+
+
+    // return 0;
+
+
+
     //tests
-    test_rdf_ds_add(rdfIndex);
-    test_rdf_ds_evaluate(rdfIndex);
+    // test_rdf_ds_add(rdfIndex);
+    // test_rdf_ds_evaluate(rdfIndex);
 
 
     do{
@@ -97,11 +107,11 @@ int main(int argc, char const *argv[])
         }
         case SELECT:
             std::cout<<"SELECT" << std::endl;
-            SparqlParser::parseQuery(input);
+            sparqlParser.parseStringQuery(input);
             break;
         case COUNT:
             std::cout<<"COUNT " << std::endl;
-            SparqlParser::parseQuery(input);
+            sparqlParser.parseStringQuery(input);
             break;
         case QUIT:
             std::cout<<"Quitting ..." << std::endl;
@@ -113,7 +123,7 @@ int main(int argc, char const *argv[])
         }
 
 
-    }while(false);
+    }while(true);
 
     return 0;
 }

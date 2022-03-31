@@ -16,13 +16,15 @@ class Term{
         const std::string NON_VAR_NAME_PLACEHOLDER = "";
 
         enum TermType{
-          NONE,
+          VAR,
           IRI,
           LITERAL
         };
         TermType type;
         id_t value;
         std::string name;
+        
+        Term(){}
         // constructuor for literatal and IRI
         Term(const TermType _type, const id_t _value):type(_type),value(_value), name(NON_VAR_NAME_PLACEHOLDER){}
 
@@ -32,8 +34,26 @@ class Term{
         
 
         inline bool isVariable(){
-            return type == NONE;
+            return type == VAR;
         }
+};
+
+
+
+class TriplePattern{
+  public:
+    Term subject, predicate, object;
+
+    TriplePattern(Term s, Term p, Term o):subject(s), predicate(p), object(o){}
+
+};
+
+
+class Exception {
+  public:
+    std::string msg;
+    Exception(const std::string& msg):msg(msg){}
+    ~Exception(){}
 };
 
 
