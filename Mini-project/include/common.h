@@ -36,7 +36,48 @@ class Term{
         inline bool isVariable(){
             return type == VAR;
         }
+
+        Term& operator=(Term other) noexcept 
+        {
+          type = other.type;
+          value = other.value;
+          name = other.name;
+            
+            return *this;
+        }
+        bool operator==(Term other) noexcept 
+        {
+          return (type == other.type) && (value == other.value) && (name == other.name);
+        }
 };
+
+
+
+      // hash function for Term class
+
+            // hash function for Term class
+
+      //  template <>
+      //   struct hash<Term>
+      //   {
+      //     std::size_t operator()(const Term& k) const
+      //     {
+      //       using std::size_t;
+      //       using std::hash;
+      //       using std::string;
+
+      //       // Compute individual hash values for first,
+      //       // second and third and combine them using XOR
+      //       // and bit shifting:
+
+      //       return ((hash<string>()(k.name)
+      //               ^ (hash<Term::TermType>()(k.type) << 1)) >> 1)
+      //               ^ (hash<int>()(k.value) << 1);
+      //     }
+      //   };
+
+
+
 
 
 
@@ -46,7 +87,29 @@ class TriplePattern{
 
     TriplePattern(Term s, Term p, Term o):subject(s), predicate(p), object(o){}
 
+    bool isAtom(){
+      return !subject.isVariable() && !predicate.isVariable() && !object.isVariable();
+    }
+
 };
+
+class Query{
+  public:
+    enum COMMAND{
+        SELECT, COUNT
+    };
+
+    COMMAND command;
+    std::vector<Term> mappingVariables; //TASK could be just a string??
+    std::vector<TriplePattern> triplePatterns;
+    std::vector<std::string> allVariables;
+
+    int size(){
+      return (int) triplePatterns.size();
+    }
+
+};
+
 
 
 class Exception {
@@ -67,6 +130,14 @@ class Exception {
 namespace std{
     namespace
     {
+
+
+
+      
+
+
+
+
 
         // Code from boost
         // Reciprocal of the golden ratio helps spread entropy

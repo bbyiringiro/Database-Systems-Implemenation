@@ -13,8 +13,11 @@
 
 // #include "util.h"
 
+//TASK update according to official specifications and make as like sparql parser
+
 using std::vector;
 using std::unordered_map;
+
 
 
 std::vector<std::string> split(std::string& str, const std::string& delim)

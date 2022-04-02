@@ -8,6 +8,10 @@
 
 #include "common.h"
 #include "rdf_index.h"
+#include "sparql_parser.h"
+#include<fstream>
+#include"engine.h"
+
 
 
 
@@ -95,9 +99,9 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
 
 
      // (s, ?, o) 
-    // Term term1 = Term(Term::TermType::LITERAL,1);
-    // Term term2 = Term(Term::TermType::VAR,"y");
-    // Term term3 = Term(Term::TermType::LITERAL, 4);
+    Term term1 = Term(Term::TermType::LITERAL,1);
+    Term term2 = Term(Term::TermType::VAR,"y");
+    Term term3 = Term(Term::TermType::LITERAL, 4);
     
     
     // (?, p, ?) 
@@ -109,9 +113,50 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
 
     // vector<RdfIndex::Triple> results= rdfIndex.evaluate(term1, term2, term3);
 
-    // for (auto & r: results) cout<<r <<endl;
+    for (auto & it: rdfIndex.evaluate(term1, term2, term3)) { //TASK not it yet
+        for(auto & mapping: it){
+            cout<<(std::get<0>(mapping)).name << " -> " <<(std::get<1>(mapping)).value << " " ; //
+        }
+        cout<<endl;
+    }
 
     
 
     return true;
+}
+
+bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfIndex){
+    std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/test.txt");
+
+    SparqlParser sparqlParser(res_2_id_map, _fin);
+    Query query =sparqlParser.parseQuery();
+    if(query.allVariables.size()==0){
+        std::cout<<"Something went wrong while processing the query" << std::endl;
+        return false;
+    }
+
+    //TEST
+    std::cout<< "COMMAND ID: "<< query.command<<std::endl;
+    //Parse Mapping Variables
+    
+    //TEST print all mapping variables
+    std::cout<< "Mapping VARIABLES: " ;
+    for(Term & t: query.mappingVariables) std::cout<< t.name <<", ";
+    std::cout<< std::endl;
+
+
+    //TEST all variables in the query
+
+    std::cout<< "Variables in Body: " ;
+    for(auto & t: query.allVariables) std::cout<< t <<", ";
+    std::cout<< std::endl;
+
+
+    Engine queryEngine(rdfIndex);
+    queryEngine.print_query_answers(query);
+
+
+    return true;
+
+
 }

@@ -1,12 +1,11 @@
 // RDF indexing data structure that implements Add and Evaluate functions
 #include <iostream>
-
 #include "rdf_index.h"
 #include<stdint.h>
 
 
-
-
+// using namespace std::vector;
+// using namespace std::tuple;
 
 
 
@@ -92,8 +91,51 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
     return false;
 }
 
-vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
-    vector<Triple> results;
+
+// TASK helper
+
+subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term){
+    subtempIteratorType mappings;
+    if(s_term.isVariable()){
+       mappingType t = make_tuple( s_term, Term(Term::TermType::LITERAL,row.Rs) );  // TASK not necessary literal ... implement a way to find type of terms from their intiger encodings..
+       mappings.push_back(t);  
+    }
+    // else{
+    //     mappingType t =  make_tuple(s_term,s_term);
+    //     mappings.push_back(t);
+          
+    // }
+
+    if(p_term.isVariable()){
+         mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp));
+        mappings.push_back(t);  
+    }
+    // else{
+    //      mappingType t = make_tuple(p_term,p_term);
+    //     mappings.push_back(t);  
+    // }
+
+    if(o_term.isVariable()){
+         mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro));
+        mappings.push_back(t);  
+    }
+    // else{
+    //      mappingType t = make_tuple(o_term,o_term);
+    //     mappings.push_back(t);  
+
+    // }
+
+    return mappings;
+    
+}
+
+
+
+// TASK implement this as an iterator
+
+tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
+
+    tempIterator result;
     //bindings
 
     //(s, p, o) 
@@ -101,7 +143,8 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
         tuple<id_t, id_t, id_t> tempT = make_tuple(s_term.value, p_term.value, o_term.value);
         if(Ispo.find(tempT) != Ispo.end()){
             triple_pointer_t T = Ispo[tempT];
-             results.push_back(tripleTable[T]);
+            auto row = tripleTable[T];
+            result.push_back(mapVariables(row, s_term, p_term, o_term));
         }
 
     }
@@ -116,7 +159,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
                     auto row = tripleTable[T];
                     T = tripleTable[T].nextptr[Nsp];
                     if(row.Ro != o_term.value) continue;
-                    results.push_back(row);
+                    result.push_back(mapVariables(row, s_term, p_term, o_term));
                 }
             }
             
@@ -130,7 +173,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
                     auto row = tripleTable[T];
                     T = tripleTable[T].nextptr[Nop];
                     if(row.Rs != s_term.value) continue;
-                    results.push_back(row);
+                    result.push_back(mapVariables(row, s_term, p_term, o_term));
                 }
             }
 
@@ -148,7 +191,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
             auto row = tripleTable[T];
 
             while(row.Rp == p_term.value){ //traverslse ip list until Rp!=p
-                results.push_back(row);
+                result.push_back(mapVariables(row, s_term, p_term, o_term));
                 T = tripleTable[T].nextptr[Nop];
                 if (T == -1) break;
                 row = tripleTable[T];
@@ -166,7 +209,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
             auto row = tripleTable[T];
 
             while(row.Rp ==p_term.value){ //traverslse sp list until Rp!=p or T=-1
-                results.push_back(row);
+                result.push_back(mapVariables(row, s_term, p_term, o_term));
                 T = tripleTable[T].nextptr[Nsp];
                 if (T == -1) break;
                 row = tripleTable[T];
@@ -185,7 +228,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
                 T = tripleTable[T].nextptr[Nop];
                 if(s_term.name == p_term.name)
                     if(row.Rs != row.Rp) continue;
-                results.push_back(row);
+                result.push_back(mapVariables(row, s_term, p_term, o_term));
             }
         }
         
@@ -201,7 +244,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
                 T = tripleTable[T].nextptr[Nsp];
                 if(p_term.name == o_term.name)
                     if(row.Rp != row.Ro) continue;
-                results.push_back(row);
+                result.push_back(mapVariables(row, s_term, p_term, o_term));
             }
         }
 
@@ -217,7 +260,7 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
                 T = tripleTable[T].nextptr[Np];
                 if(s_term.name == o_term.name)
                     if(row.Rs != row.Ro) continue;
-                results.push_back(row);
+                result.push_back(mapVariables(row, s_term, p_term, o_term));
             }
         }
 
@@ -234,12 +277,12 @@ vector<RdfIndex::Triple> RdfIndex::evaluate(Term & s_term, Term & p_term, Term &
             if(s_term.name == o_term.name)
                 if(row.Rs != row.Ro) continue;
             
-            results.push_back(row);
+            result.push_back(mapVariables(row, s_term, p_term, o_term));
 
         }
 
     }
-    return results;
+    return result;
 }
 
 

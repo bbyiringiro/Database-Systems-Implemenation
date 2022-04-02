@@ -4,12 +4,17 @@
 #include<vector>
 #include<unordered_map>
 #include <tuple>
+#include <array>
 #include "common.h"
 
 
-
 using namespace std;
+// using namespace std::vector;
+// using namespace std::tuple;
 
+using mappingType =tuple<Term, Term>;
+using subtempIteratorType = vector<mappingType>;
+using tempIterator = vector<subtempIteratorType>;
 
 
 
@@ -43,7 +48,7 @@ class RdfIndex{
 
         bool add(id_t s, id_t p, id_t o);
 
-        vector<Triple> evaluate(Term & s_term, Term & p_term, Term & o_term);
+        tempIterator evaluate(Term & s_term, Term & p_term, Term & o_term);
         
 
         triple_pointer_t getTablesize();

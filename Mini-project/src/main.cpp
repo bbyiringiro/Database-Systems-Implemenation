@@ -57,7 +57,8 @@ int main(int argc, char const *argv[])
 
     // std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/q01.txt");
 
-    // SparqlParser sparqlParser(&rdfIndex, _fin);
+    // SparqlParser sparqlParser(res_2_id_map, _fin);
+    // Query query =sparqlParser.parseQuery();
     SparqlParser sparqlParser(res_2_id_map);
 
 
@@ -66,13 +67,17 @@ int main(int argc, char const *argv[])
     
 
 
-    // return 0;
+    
 
 
 
     //tests
     // test_rdf_ds_add(rdfIndex);
     // test_rdf_ds_evaluate(rdfIndex);
+     bool statustmep = TurtleParser::parseFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl", id_2_res_v, res_2_id_map, rdfIndex);
+    test_query(res_2_id_map, rdfIndex);
+    return 0;
+    
 
 
     do{

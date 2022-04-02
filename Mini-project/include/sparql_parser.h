@@ -22,16 +22,6 @@ class SparqlParser
 
     unordered_map<std::string, int> & res_2_id_map;
 
-
-
-    enum COMMAND{
-        SELECT, COUNT
-    };
-
-    COMMAND command;
-    std::vector<Term> mappingVariables;
-    std::vector<TriplePattern> triplePatterns;
-    std::vector<std::string> allVariables;
     
 
 
@@ -41,8 +31,8 @@ class SparqlParser
         
 
         SparqlParser(unordered_map<std::string, int> &  res_2_id_map, std::ifstream & _filestream );
-        void parseQuery();
-        void parseStringQuery(std::string queryString);
+        Query parseQuery();
+        Query parseStringQuery(std::string queryString);
 
 
         
@@ -51,9 +41,9 @@ class SparqlParser
         bool readToken(std::string & token);
         bool readUntilNoSpace(char & ch);
         bool readUntil(char stopChar, std::string & token);
-        bool processBody(std::string  extraToken);
-        bool parseTerm(Term & t, char & lastreadchar);
-        bool parsePattern(Term & s, Term & p, Term & o, char & lastreadchar);
+        bool processBody(std::string  extraToken, Query&);
+        bool parseTerm(Term & t, char & lastreadchar, Query&);
+        bool parsePattern(Term & s, Term & p, Term & o, char & lastreadchar, Query&);
 };
 
 
