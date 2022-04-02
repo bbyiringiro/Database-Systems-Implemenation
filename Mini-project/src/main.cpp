@@ -59,10 +59,9 @@ int main(int argc, char const *argv[])
 
     // SparqlParser sparqlParser(res_2_id_map, _fin);
     // Query query =sparqlParser.parseQuery();
-    SparqlParser sparqlParser(res_2_id_map);
+    // SparqlParser sparqlParser(res_2_id_map);
 
-    std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/test.ttl");
-    TurtleParser turtleParser(turtleFile);
+    
 
 
 
@@ -75,10 +74,12 @@ int main(int argc, char const *argv[])
 
 
     //tests
-    test_rdf_ds_add(rdfIndex);
+    // test_rdf_ds_add(rdfIndex);
     // test_rdf_ds_evaluate(rdfIndex);
-     bool statustmep = turtleParser.parseFile("temp", id_2_res_v, res_2_id_map, rdfIndex);//TASK
-    // test_query(res_2_id_map, rdfIndex);
+    std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl"); //TASK putting in the file stream
+    TurtleParser turtleParser(turtleFile);
+     bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
+    test_query(res_2_id_map, rdfIndex);
     return 0;
     
 
@@ -115,11 +116,11 @@ int main(int argc, char const *argv[])
         }
         case SELECT:
             std::cout<<"SELECT" << std::endl;
-            sparqlParser.parseStringQuery(input);
+            // sparqlParser.parseStringQuery(input);
             break;
         case COUNT:
             std::cout<<"COUNT " << std::endl;
-            sparqlParser.parseStringQuery(input);
+            // sparqlParser.parseStringQuery(input);
             break;
         case QUIT:
             std::cout<<"Quitting ..." << std::endl;

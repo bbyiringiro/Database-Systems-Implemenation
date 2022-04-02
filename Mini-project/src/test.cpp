@@ -127,16 +127,24 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
 
 bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfIndex){
     std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/test.txt");
-
+    cout<<"\n\nstarting query parsing" << endl;
     SparqlParser sparqlParser(res_2_id_map, _fin);
     Query query =sparqlParser.parseQuery();
     if(query.allVariables.size()==0){
         std::cout<<"Something went wrong while processing the query" << std::endl;
         return false;
     }
+    cout<<"Done query parsing sucessfully" << endl;
+
+
+
 
     //TEST
     std::cout<< "COMMAND ID: "<< query.command<<std::endl;
+    //Parse Mapping Variables
+
+    //TEST
+    std::cout<< "Lenght: "<< query.size()<<std::endl;
     //Parse Mapping Variables
     
     //TEST print all mapping variables
@@ -150,6 +158,8 @@ bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfI
     std::cout<< "Variables in Body: " ;
     for(auto & t: query.allVariables) std::cout<< t <<", ";
     std::cout<< std::endl;
+
+
 
 
     Engine queryEngine(rdfIndex);

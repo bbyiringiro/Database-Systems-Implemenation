@@ -69,11 +69,11 @@ id_t TurtleParser::encode_resource(std::string & resource_name,
 }
 
 
-bool TurtleParser::parseResource(std::string & resource_name, char & ch){
-    // char ch;
+bool TurtleParser::parseResource(std::string & resource_name, char & lastReadChar){
+    char ch;
     
     if(readUntilNoSpace(ch)){
-        cout<<ch<< resource_name<< endl;
+        lastReadChar = ch;
 
         
         if(ch =='<'){
@@ -81,7 +81,6 @@ bool TurtleParser::parseResource(std::string & resource_name, char & ch){
                 std::cout<< " Error reading term in a triple, could not find closing bracket >" <<std::endl;
                 return false;
             }
-                    cout<<!in_stream.eof() << resource_name<< endl;
 
         }
 
@@ -111,7 +110,11 @@ bool TurtleParser::parseResource(std::string & resource_name, char & ch){
             std::cout<< "Uknown start of the triple, check your turtle file for a triple that starts with: "<<ch  <<std::endl;
             return false;
         }
-    }else{
+    }
+    else{
+        
+        // std::cout<< "Uknown start of the a resource at: " <<ch << std::endl;
+        // std::cout<< "Or the file is Empty" <<ch << std::endl;
         return false;
     }
 
@@ -125,8 +128,9 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
     
 
 // if ( fin.is_open() ) {// TASK check file open...
-    char ch;
-    while(next(ch)){
+    bool possibleEOF = false;
+    char lastReadChar;
+    while(in_stream || BUFFER[readPos]!='\0'){
         // read subject term
         std::string subject;
         // read predicate ter
@@ -135,22 +139,26 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
         std::string object;
 
 
-        if(parseResource(subject, ch)){
-            if(parseResource(predicate, ch)){
-                if(parseResource(object, ch)){
+        if(parseResource(subject, lastReadChar)){
+            possibleEOF = false;
+            if(parseResource(predicate, lastReadChar)){
+                if(parseResource(object, lastReadChar)){
 
                     std::string temp="";
                     if(!readUntil('.',temp)){
-                        std::cout<< "One Triple is not closed with a dot(.) from here ..." <<"temp"<<std::endl; //TASK get a line number 
+                        std::cout<< "One Triple is not closed with a dot(.) from here ..." <<temp<<std::endl; //TASK get a line number 
                         return false;
                     }
+                    possibleEOF = true;
+                    
+                    
 
                     id_t spo_ids[3];
                     current_res_id = encode_resource(subject,current_res_id, spo_ids, 0, id_2_res_v, res_2_id_map, rdfIndex);
                     current_res_id = encode_resource(predicate,current_res_id, spo_ids, 1, id_2_res_v, res_2_id_map, rdfIndex);
                     current_res_id = encode_resource(object,current_res_id, spo_ids, 2, id_2_res_v, res_2_id_map, rdfIndex);
 
-                    std::cout <<subject<< " --" << predicate<< " --" << object << std::endl;
+                    // std::cout <<subject<< " --" << predicate<< " --" << object << std::endl;
                     // std::cout <<spo_ids[0]<< " --" << spo_ids[1]<< " --" << spo_ids[2] << std::endl;
                     
                     // create the six column index
@@ -164,11 +172,15 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
                     }
 
 
-                }else{cout<<"Error in N-triple  file \n"; return false;}
+                }else{cout<<"Error in N-triple  file (object) \n"; return false;}
             }
-            else{cout<<"Error in N-triple  file \n";return false;}
+            else{cout<<"Error in N-triple  file (predicate)\n";return false;}
         }
-        else{cout<<"Error in N-triple  file \n"; return false;}
+        else{
+            if(possibleEOF || !next(lastReadChar)) break;
+            
+            cout<<"Error in N-triple  file (subject)\n"; return false;
+        }
 
         
 

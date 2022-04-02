@@ -82,6 +82,23 @@ Query SparqlParser::parseQuery(){
         }
     }
 
+
+    // //TEST
+    // std::cout<< "COMMAND ID: "<< query.command<<std::endl;
+    // //Parse Mapping Variables
+    
+    // //TEST print all mapping variables
+    // std::cout<< "Mapping VARIABLES: " ;
+    // for(Term & t: query.mappingVariables) std::cout<< t.name <<", ";
+    // std::cout<< std::endl;
+
+
+    // //TEST all variables in the query
+
+    // // std::cout<< "Variables in Body: " ;
+    // // for(auto & t: query.allVariables) std::cout<< t <<", ";
+    // // std::cout<< std::endl;
+
     processBody(extraCharactersAfterWhere, query);
 
 
@@ -124,7 +141,7 @@ bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
      bool seenClosedBrace = false;
      char ch, lastreadchar;
      if(!readUntilNoSpace(ch)) {
-         std::cout<< "Syntax Error in the body" <<std::endl;
+         std::cout<< "Syntax Error in the body :"+ch <<std::endl;
          return false;
      }
      if(extraonLastToken == "" && ch !='{'){
