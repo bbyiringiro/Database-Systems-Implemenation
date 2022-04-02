@@ -61,6 +61,9 @@ int main(int argc, char const *argv[])
     // Query query =sparqlParser.parseQuery();
     SparqlParser sparqlParser(res_2_id_map);
 
+    std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/test.ttl");
+    TurtleParser turtleParser(turtleFile);
+
 
 
     // std::string temps = "SELECT ?Xm WHERE {?X  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>             <http://swat.cse.lehigh.edu/onto/univ-bench.owl#GraduateStudent>  . ?X <http://swat.cse.lehigh.edu/onto/univ-bench.owl#takesCourse> <http://www.Department0.University0.edu/GraduateCourse0>          .}";
@@ -72,10 +75,10 @@ int main(int argc, char const *argv[])
 
 
     //tests
-    // test_rdf_ds_add(rdfIndex);
+    test_rdf_ds_add(rdfIndex);
     // test_rdf_ds_evaluate(rdfIndex);
-     bool statustmep = TurtleParser::parseFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl", id_2_res_v, res_2_id_map, rdfIndex);
-    test_query(res_2_id_map, rdfIndex);
+     bool statustmep = turtleParser.parseFile("temp", id_2_res_v, res_2_id_map, rdfIndex);//TASK
+    // test_query(res_2_id_map, rdfIndex);
     return 0;
     
 
@@ -105,7 +108,7 @@ int main(int argc, char const *argv[])
             std::string filename = trim_copy(input.substr(command_idx));
             
             std::cout<<filename << std::endl;
-            bool status = TurtleParser::parseFile(filename, id_2_res_v, res_2_id_map, rdfIndex);
+            // bool status = turtleParser.parseFile(id_2_res_v, res_2_id_map, rdfIndex);
             // print(status); //TO BE CHANGED
             
             break;

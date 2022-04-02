@@ -14,10 +14,10 @@ void toUpperStr(std::string & str);
 
 
 
-SparqlParser::SparqlParser(unordered_map<std::string, int> &  _res_2_id_map):fin(ss), res_2_id_map(_res_2_id_map){
+SparqlParser::SparqlParser(unordered_map<std::string, int> &  _res_2_id_map):Parser(queryBuffer, QUERY_READ_BUFFER_SIZE), res_2_id_map(_res_2_id_map){
 }
 
-SparqlParser::SparqlParser(unordered_map<std::string, int> & _res_2_id_map, std::ifstream  &_filestream):fin(_filestream),res_2_id_map(_res_2_id_map){
+SparqlParser::SparqlParser(unordered_map<std::string, int> & _res_2_id_map, std::ifstream  &_filestream):Parser(_filestream, queryBuffer, QUERY_READ_BUFFER_SIZE),res_2_id_map(_res_2_id_map){
 
 }
 
@@ -116,42 +116,6 @@ Query SparqlParser::parseQuery(){
 }
 
 
-bool SparqlParser::loadBuffer(){
-  char ch;
-
-  loadBufferPos = 0;
-  while(loadBufferPos < READ_BUFFER_SIZE){
-    if (fin >> std::noskipws >> ch){
-        // if (ch == '\n') continue;
-
-        queryBuffer[loadBufferPos]=ch;
-        ++loadBufferPos;
-    }
-    else{ //EOF
-        queryBuffer[loadBufferPos]='\0';
-        break;
-    }
-  }
-
-  return loadBufferPos>0;
-}
-
-
-bool SparqlParser::next(char & ch){ 
-
-    if(readPos < loadBufferPos){ // check if have not read all the buffer
-        if(queryBuffer[readPos] == '\0') return false; // it indicates we have the all of the file
-        ch =queryBuffer[readPos++]; return true;
-    }
-    else{
-        if(loadBuffer()) { // reload  the buffer and reset the reading position
-            readPos = 0; return next(ch);
-        } // else return false as we have finished the whole file 
-        else return false;
-    }
-}
-
-
 
 bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
 
@@ -171,10 +135,6 @@ bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
      }
 
      //get tripplePatters
-    
-    // while(true){
-
-    // }
 
     while(!seenClosedBrace){
         // read subject term
@@ -188,7 +148,7 @@ bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
             query.triplePatterns.push_back(TriplePattern(subject, predicate, object));
             std::string temp="";
             if(!readUntil('.',temp)){
-                std::cout<< "One pattern is not closed with a from here ..." <<"temp"<<std::endl;
+                std::cout<< "One pattern is not closed with a dot(.) from here ..." <<"temp"<<std::endl;
                 return false;
             }
         }
@@ -199,7 +159,6 @@ bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
                 return false;
             }
         }
-
     }
 
 
@@ -240,39 +199,6 @@ bool SparqlParser::parsePattern(Term & subject, Term & predicate, Term & object,
 
 }
 
-bool SparqlParser::readToken(std::string & token){
-    char ch;
-   if(!readUntilNoSpace(ch)) return false;
-    
-
-    do{
-        token +=ch;
-        if(!next(ch)) return false;
-    }while(!std::isspace(ch));
-    return true;
-
-}
-
-bool SparqlParser::readUntilNoSpace(char & ch){
-    do{
-        if(!next(ch)) return false;
-    }while(std::isspace(ch));
-
-    return true;
-
-}
-
-bool SparqlParser::readUntil(char stopChar, std::string & token){
-   char ch;
-    while(ch!=stopChar){
-        token +=ch;
-        if(!next(ch)) return false;
-
-    }
-    return true;
-
-}
-
 bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
 {
     char ch;
@@ -301,7 +227,7 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
             std::string name ="";
 
             if (!readUntil('\"',name)){
-                std::cout<< "Error reading term in a pattern, could not find closing bracket >" <<std::endl;
+                std::cout<< "Error reading term in a pattern, could not find closing quote \" " <<std::endl;
                 return false;
             }
             t.name = name;
@@ -341,6 +267,9 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
     //  }
      return true;
 }
+
+
+
 
 
 // static bool iswhitespace(char c) { return (c==' ')||(c=='\t')||(c=='\n')||(c=='\r')
