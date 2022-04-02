@@ -97,7 +97,7 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
 subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term){
     subtempIteratorType mappings;
     if(s_term.isVariable()){
-       mappingType t = make_tuple( s_term, Term(Term::TermType::LITERAL,row.Rs) );  // TASK not necessary literal ... implement a way to find type of terms from their intiger encodings..
+       mappingType t = make_tuple( s_term, Term(Term::TermType::LITERAL,row.Rs, s_term.name) );  // TASK not necessary literal ... .. and the third arugment is for debugging purposesimplement a way to find type of terms from their intiger encodings..
        mappings.push_back(t);  
     }
     // else{
@@ -107,7 +107,7 @@ subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p
     // }
 
     if(p_term.isVariable()){
-         mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp));
+         mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp, p_term.name));
         mappings.push_back(t);  
     }
     // else{
@@ -116,7 +116,7 @@ subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p
     // }
 
     if(o_term.isVariable()){
-         mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro));
+         mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro, o_term.name));
         mappings.push_back(t);  
     }
     // else{

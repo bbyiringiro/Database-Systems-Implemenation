@@ -9,6 +9,6 @@
 bool test_rdf_ds_add(RdfIndex &);
 
 bool test_rdf_ds_evaluate(RdfIndex &);
-bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfIndex);
+bool test_query(unordered_map<std::string, int> &  res_2_id_map, vector<tuple<std::string, bool>> & _id_2_res_v, RdfIndex & rdfIndex);
 
 #endif //TEST_H_

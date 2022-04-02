@@ -14,14 +14,15 @@ using std::unordered_map;
 class TurtleParser: public Parser
 {
     private:
-        bool parseResource(std::string & resource_name, char & ch);
+        bool parseResource(std::string & resource_name, bool & type);
         id_t encode_resource(std::string & resource_name, 
             id_t current_res_id, 
             id_t * triple_encoding_results, 
             short res_idx,  
-            vector<std::string> & id_2_res_v, 
+            vector<tuple<std::string, bool>> & id_2_res_v, 
             unordered_map<std::string, 
-            int> & res_2_id_map, RdfIndex & rdfIndex);
+            int> & res_2_id_map, RdfIndex & rdfIndex,
+            bool resourceType);
 
 
 
@@ -33,7 +34,7 @@ class TurtleParser: public Parser
     public:
         TurtleParser();
         TurtleParser(std::ifstream  &_filestream );
-        bool parseFile(std::string filepath, vector<std::string> & id_2_res_v, unordered_map<std::string, int> & res_2_id_m, RdfIndex & tripleTable);//TASK static 
+        bool parseFile(std::string filepath, vector<tuple<std::string, bool>> & id_2_res_v, unordered_map<std::string, int> & res_2_id_m, RdfIndex & tripleTable);//TASK static 
 
 
     

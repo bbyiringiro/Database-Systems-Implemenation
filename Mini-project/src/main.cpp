@@ -23,11 +23,14 @@
 
 
 using std::vector;
+using std::tuple;
 using std::unordered_map;
 
 // Resources  dictionary integer encoding:
+// Resource -> ID
 unordered_map<std::string, int> res_2_id_map;
-vector<std::string> id_2_res_v;
+//ID -> (resource, resourceType)
+vector<tuple<std::string, bool>> id_2_res_v; // bool incates whether a resource is variable or literall
 RdfIndex rdfIndex;
 
 
@@ -79,7 +82,7 @@ int main(int argc, char const *argv[])
     std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl"); //TASK putting in the file stream
     TurtleParser turtleParser(turtleFile);
      bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
-    test_query(res_2_id_map, rdfIndex);
+    test_query(res_2_id_map,id_2_res_v, rdfIndex);
     return 0;
     
 

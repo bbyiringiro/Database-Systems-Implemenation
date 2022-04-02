@@ -49,15 +49,17 @@ id_t TurtleParser::encode_resource(std::string & resource_name,
             id_t  current_res_id, 
             id_t * triple_encoding_results, 
             short res_idx,  
-            vector<std::string> & id_2_res_v, 
+            vector<tuple<std::string, bool>> & id_2_res_v, 
             unordered_map<std::string, 
-            int> & res_2_id_map, RdfIndex & rdfIndex){
+            int> & res_2_id_map, RdfIndex & rdfIndex,
+            bool resourceType){
 
     if(res_2_id_map.find(resource_name) == res_2_id_map.end()){
         triple_encoding_results[res_idx]=current_res_id;
+        // Resource -> ID
         res_2_id_map[resource_name] = current_res_id++; // if a resrouce is not already in map give it id and increment
-        //ID -> resources
-        id_2_res_v.push_back(resource_name); // implicitely taken the id according to the order..
+        //ID -> (resource, resourceType)
+        id_2_res_v.push_back(make_tuple(resource_name, resourceType)); // implicitely taken the id according to the order..
     }
     else{
         triple_encoding_results[res_idx]=res_2_id_map[resource_name];
@@ -69,11 +71,10 @@ id_t TurtleParser::encode_resource(std::string & resource_name,
 }
 
 
-bool TurtleParser::parseResource(std::string & resource_name, char & lastReadChar){
+bool TurtleParser::parseResource(std::string & resource_name, bool & resourceType){
     char ch;
     
     if(readUntilNoSpace(ch)){
-        lastReadChar = ch;
 
         
         if(ch =='<'){
@@ -81,6 +82,7 @@ bool TurtleParser::parseResource(std::string & resource_name, char & lastReadCha
                 std::cout<< " Error reading term in a triple, could not find closing bracket >" <<std::endl;
                 return false;
             }
+            resourceType=true; // 
 
         }
 
@@ -89,6 +91,7 @@ bool TurtleParser::parseResource(std::string & resource_name, char & lastReadCha
                 std::cout<< "Error reading term in a trile, could not find closing the quote \" " <<std::endl;
                 return false;
             }
+            resourceType=false;
             // if(next(ch)){
             //     // lastChar=ch;
             //     if(ch=='^'){
@@ -122,14 +125,16 @@ bool TurtleParser::parseResource(std::string & resource_name, char & lastReadCha
 
 }
 
-bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_res_v, unordered_map<std::string, int> & res_2_id_map, RdfIndex & rdfIndex){
+bool TurtleParser::parseFile(std::string filepath, vector<tuple<std::string, bool>> & id_2_res_v, unordered_map<std::string, int> & res_2_id_map, RdfIndex & rdfIndex){
 
     int triples_num=0;
     
 
 // if ( fin.is_open() ) {// TASK check file open...
     bool possibleEOF = false;
-    char lastReadChar;
+    bool subType;
+    bool predType;
+    bool objType;
     while(in_stream || BUFFER[readPos]!='\0'){
         // read subject term
         std::string subject;
@@ -139,10 +144,10 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
         std::string object;
 
 
-        if(parseResource(subject, lastReadChar)){
+        if(parseResource(subject, subType)){
             possibleEOF = false;
-            if(parseResource(predicate, lastReadChar)){
-                if(parseResource(object, lastReadChar)){
+            if(parseResource(predicate, predType)){
+                if(parseResource(object, objType)){
 
                     std::string temp="";
                     if(!readUntil('.',temp)){
@@ -154,9 +159,9 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
                     
 
                     id_t spo_ids[3];
-                    current_res_id = encode_resource(subject,current_res_id, spo_ids, 0, id_2_res_v, res_2_id_map, rdfIndex);
-                    current_res_id = encode_resource(predicate,current_res_id, spo_ids, 1, id_2_res_v, res_2_id_map, rdfIndex);
-                    current_res_id = encode_resource(object,current_res_id, spo_ids, 2, id_2_res_v, res_2_id_map, rdfIndex);
+                    current_res_id = encode_resource(subject,current_res_id, spo_ids, 0, id_2_res_v, res_2_id_map, rdfIndex, subType);
+                    current_res_id = encode_resource(predicate,current_res_id, spo_ids, 1, id_2_res_v, res_2_id_map, rdfIndex, predType);
+                    current_res_id = encode_resource(object,current_res_id, spo_ids, 2, id_2_res_v, res_2_id_map, rdfIndex, objType);
 
                     // std::cout <<subject<< " --" << predicate<< " --" << object << std::endl;
                     // std::cout <<spo_ids[0]<< " --" << spo_ids[1]<< " --" << spo_ids[2] << std::endl;
@@ -177,7 +182,8 @@ bool TurtleParser::parseFile(std::string filepath, vector<std::string> & id_2_re
             else{cout<<"Error in N-triple  file (predicate)\n";return false;}
         }
         else{
-            if(possibleEOF || !next(lastReadChar)) break;
+            char ch;
+            if(possibleEOF || !next(ch)) break;
             
             cout<<"Error in N-triple  file (subject)\n"; return false;
         }

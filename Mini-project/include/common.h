@@ -25,6 +25,8 @@ class Term{
         std::string name;
         
         Term(){}
+        // constructor that takes all
+        Term(const TermType _type, const id_t _value, const std::string _name):type(_type),value(_value), name(_name){}
         // constructuor for literatal and IRI
         Term(const TermType _type, const id_t _value):type(_type),value(_value), name(NON_VAR_NAME_PLACEHOLDER){}
 

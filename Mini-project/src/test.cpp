@@ -125,7 +125,7 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
     return true;
 }
 
-bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfIndex){
+bool test_query(unordered_map<std::string, int> &  res_2_id_map, vector<tuple<std::string, bool>> & id_2_res_v,  RdfIndex & rdfIndex){
     std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/test.txt");
     cout<<"\n\nstarting query parsing" << endl;
     SparqlParser sparqlParser(res_2_id_map, _fin);
@@ -161,8 +161,7 @@ bool test_query(unordered_map<std::string, int> &  res_2_id_map, RdfIndex & rdfI
 
 
 
-
-    Engine queryEngine(rdfIndex);
+    Engine queryEngine(rdfIndex, id_2_res_v);
     queryEngine.print_query_answers(query);
 
 
