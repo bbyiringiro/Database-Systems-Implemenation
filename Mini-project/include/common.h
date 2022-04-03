@@ -86,12 +86,17 @@ class Term{
 class TriplePattern{
   public:
     Term subject, predicate, object;
-
+    TriplePattern(){}
     TriplePattern(Term s, Term p, Term o):subject(s), predicate(p), object(o){}
 
     bool isAtom(){
       return !subject.isVariable() && !predicate.isVariable() && !object.isVariable();
     }
+
+    bool operator==(TriplePattern other) noexcept 
+      {
+        return (subject == other.subject) && (predicate == other.predicate) && (object == other.object);
+      }
 
 };
 
