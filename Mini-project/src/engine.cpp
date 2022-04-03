@@ -5,6 +5,7 @@
 #include<string>
 
 #include"engine.h"
+#include "query_optimiser.h"
 
 
 void Engine::print_query_answers(Query & query){
@@ -20,7 +21,8 @@ void Engine::print_query_answers(Query & query){
     std::cout<<"\n";
     results_counter = 0;
     std::cout<<"query.command "<< query.command << endl;
-    nested_index_loop_join( query, &query.triplePatterns, variablesMap, 0);
+    auto optimisedQueryPatterns = planQuery(query.triplePatterns);
+    nested_index_loop_join( query, &optimisedQueryPatterns, variablesMap, 0);
 
     // if(query.command == Query::COMMAND::COUNT){
         std::cout<<"Number of results is : "<<results_counter<<std::endl;

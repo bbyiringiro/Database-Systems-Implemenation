@@ -86,8 +86,11 @@ class Term{
 class TriplePattern{
   public:
     Term subject, predicate, object;
+    std::string name; //TASK DEBUG remove
+    TriplePattern(Term s, Term p, Term o, std::string n):name(n), subject(s), predicate(p), object(o){}
     TriplePattern(){}
     TriplePattern(Term s, Term p, Term o):subject(s), predicate(p), object(o){}
+
 
     bool isAtom(){
       return !subject.isVariable() && !predicate.isVariable() && !object.isVariable();

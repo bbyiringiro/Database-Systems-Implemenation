@@ -29,7 +29,7 @@ set<string> var(TriplePattern & triplePattern){
     return results;
 }
 
-short optmiserScore(Term & s_term, Term & p_term, Term & o_term){
+short getHeuristicScore(Term & s_term, Term & p_term, Term & o_term){
     //(s, p, o) 
     if( !s_term.isVariable() && !p_term.isVariable() && !o_term.isVariable() ) return 1;
     //(s, ?, o) 
@@ -48,7 +48,7 @@ short optmiserScore(Term & s_term, Term & p_term, Term & o_term){
     else if(s_term.isVariable() && p_term.isVariable() && o_term.isVariable()) return 8;
 }
 
-vector<TriplePattern> planQuery(vector<TriplePattern>  unproccessedTriples){
+ vector<TriplePattern> planQuery(vector<TriplePattern>  unproccessedTriples){
     set<string> bound;
     vector<TriplePattern> queryPlan;
 
@@ -58,13 +58,13 @@ vector<TriplePattern> planQuery(vector<TriplePattern>  unproccessedTriples){
         short scoreBest = 100;
         for(auto & unprocPattern: unproccessedTriples){
 
-            short scoreCurTriple = optmiserScore(unprocPattern.subject, unprocPattern.predicate, unprocPattern.object);
+            short scoreCurTriple = getHeuristicScore(unprocPattern.subject, unprocPattern.predicate, unprocPattern.object);
 
             auto tripleVariables = var(unprocPattern);
 
             std::vector<string> varBIntersect;
             set_intersection(varBIntersect.begin(),varBIntersect.end(),bound.begin(),bound.end(), std::back_inserter(varBIntersect));
-            if( (first || scoreCurTriple < scoreBest)&& tripleVariables.empty() || varBIntersect.size()==0){
+            if( first || (scoreCurTriple < scoreBest && (tripleVariables.empty() || varBIntersect.size()==0))){
                 tripleBest = unprocPattern;
                 scoreBest = scoreCurTriple;
                 first=false;

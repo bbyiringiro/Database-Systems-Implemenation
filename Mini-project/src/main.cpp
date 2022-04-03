@@ -81,8 +81,10 @@ int main(int argc, char const *argv[])
     // test_rdf_ds_evaluate(rdfIndex);
     std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl"); //TASK putting in the file stream
     TurtleParser turtleParser(turtleFile);
-     bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
+    bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
     test_query(res_2_id_map,id_2_res_v, rdfIndex);
+    // test_query_optimiser();
+
     return 0;
     
 
