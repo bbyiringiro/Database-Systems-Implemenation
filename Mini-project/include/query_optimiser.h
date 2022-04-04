@@ -1,5 +1,34 @@
 #pragma once
 
+#define GENERATOR(name) \
+struct name \
+{ \
+    template<typename F> \
+    void operator()(F yield) \
+/**/
+#define _ };
+ 
+template<typename Gen>
+struct Adaptor
+{
+    Gen f;
+    template<typename C>
+    void operator*(C cont)
+    {
+        f(cont);
+    }
+};
+ 
+template<typename Gen>
+Adaptor<Gen> make_adaptor(Gen gen)
+{
+    return {gen};
+}
+ 
+#define FOREACH(arg, gen) make_adaptor(gen) * [&](arg)
+ 
+/******************************************************/
+
 #include<vector>
 #include<set>
 #include<string>

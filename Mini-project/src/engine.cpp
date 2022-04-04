@@ -21,7 +21,20 @@ void Engine::print_query_answers(Query & query){
     std::cout<<"\n";
     results_counter = 0;
     std::cout<<"query.command "<< query.command << endl;
+    // //DEBUG
+    // cout<<"before optimiser size("<<query.triplePatterns.size()<<std::endl;
+    // for (auto & pattern: query.triplePatterns){
+    //     cout<<pattern.subject.name<<" < ";
+    // }
+    // cout<<std::endl;
     auto optimisedQueryPatterns = planQuery(query.triplePatterns);
+
+    // cout<<"after optimiser ("<<optimisedQueryPatterns.size()<<std::endl;
+
+    // for (auto & pattern: optimisedQueryPatterns){
+    //     cout<<pattern.subject.name<<" < ";
+    // }
+    // cout<<"querying now..."<<endl;
     nested_index_loop_join( query, &optimisedQueryPatterns, variablesMap, 0);
 
     // if(query.command == Query::COMMAND::COUNT){
@@ -126,7 +139,8 @@ void Engine::nested_index_loop_join(Query & query, std::vector<TriplePattern> * 
         }
         else{
             bool notmatched = true;
-            for (auto patternMappings: rdfIndex.evaluate(newPattern.subject, newPattern.predicate, newPattern.object)) { //TASK not an it yet
+            // for (auto patternMappings: rdfIndex.evaluate(newPattern.subject, newPattern.predicate, newPattern.object)) { //TASK not an it yet
+            for(RdfIndex::Iterator it=rdfIndex.evaluate(newPattern.subject, newPattern.predicate, newPattern.object); it!=rdfIndex.end(); ++it){
                 notmatched=  false;
 
                 auto * newPatternsPtr = new std::vector<TriplePattern>;
@@ -136,6 +150,7 @@ void Engine::nested_index_loop_join(Query & query, std::vector<TriplePattern> * 
                 // cout<<"1---------"<<std::endl; //
 
                 bool isFirstVAr = true;
+                auto patternMappings =(*it);
                 for(auto mapping: patternMappings){
                     // cout<<(std::get<0>(mapping)).name << " :-> " <<(std::get<1>(mapping)).value << " " <<std::endl; //
                     

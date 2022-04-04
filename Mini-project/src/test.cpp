@@ -36,7 +36,7 @@ bool test_rdf_ds_add(RdfIndex & rdfIndex){
     for(tuple<int, int, int>t: triples)
         rdfIndex.add( get<0>(t),  get<1>(t),  get<2>(t));
 
-    int counter;
+    int counter=0;
     for(auto & triple: rdfIndex.tripleTable){
         cout <<counter << ":" << triple << endl;
         ++counter;
@@ -60,68 +60,92 @@ bool test_rdf_ds_evaluate(RdfIndex & rdfIndex){
 
     cout << "Query EValuations test" << endl;
 
-    // (?, ?, ?)
-    // Term term1 = Term(Term::TermType::VAR, "x");
-    // Term term2 = Term(Term::TermType::VAR, "y");
-    // Term term3 = Term(Term::TermType::VAR, "z");
+
 
     // (s,p,o)
     // Term term1 = Term(Term::TermType::LITERAL,2);
     // Term term2 = Term(Term::TermType::LITERAL,1);
     // Term term3 = Term(Term::TermType::IRI,4);
 
-    //(s, p, ?) 
-    // Term term1 = Term(Term::TermType::LITERAL,2);
-    // Term term2 = Term(Term::TermType::LITERAL,1);
-    // Term term3 = Term(Term::TermType::VAR, "z");
-
-    // (s, ?, ?) 
+         // (s, ?, o) 
     // Term term1 = Term(Term::TermType::LITERAL,1);
     // Term term2 = Term(Term::TermType::VAR,"y");
-    // Term term3 = Term(Term::TermType::VAR, "z");
-
-
+    // Term term3 = Term(Term::TermType::LITERAL, 1);
+   
       // (?, p, o) 
     // Term term1 = Term(Term::TermType::VAR,"x");
+    // Term term2 = Term(Term::TermType::LITERAL,1);
+    // Term term3 = Term(Term::TermType::LITERAL, 1);
+
+    //(s, p, ?) 
+    // Term term1 = Term(Term::TermType::LITERAL,1);
     // Term term2 = Term(Term::TermType::LITERAL,3);
+    // Term term3 = Term(Term::TermType::VAR, "z");
+
+    // (?, ?, o) 
+    // Term term1 = Term(Term::TermType::VAR,"x");
+    // Term term2 = Term(Term::TermType::VAR,"y");
     // Term term3 = Term(Term::TermType::LITERAL, 4);
+
+
+
 
      // (?, ?, o) 
     // Term term1 = Term(Term::TermType::VAR,"x");
     // Term term2 = Term(Term::TermType::VAR,"y");
     // Term term3 = Term(Term::TermType::LITERAL, 2);
 
-
-
-    // (?, ?, o) 
-    // Term term1 = Term(Term::TermType::VAR,"x");
+    // (s, ?, ?) 
+    // Term term1 = Term(Term::TermType::LITERAL,1);
     // Term term2 = Term(Term::TermType::VAR,"y");
-    // Term term3 = Term(Term::TermType::LITERAL, 2);
+    // Term term3 = Term(Term::TermType::VAR, "x");
 
-
-     // (s, ?, o) 
-    Term term1 = Term(Term::TermType::LITERAL,1);
-    Term term2 = Term(Term::TermType::VAR,"y");
-    Term term3 = Term(Term::TermType::LITERAL, 4);
-    
-    
     // (?, p, ?) 
     // Term term1 = Term(Term::TermType::VAR,"x");
-    // Term term2 = Term(Term::TermType::LITERAL,1);
-    // Term term3 = Term(Term::TermType::VAR, "x");
+    // Term term2 = Term(Term::TermType::LITERAL,3);
+    // Term term3 = Term(Term::TermType::VAR, "z");
+
+
+        // (?, ?, ?)
+    // Term term1 = Term(Term::TermType::VAR, "x");
+    // Term term2 = Term(Term::TermType::VAR, "y");
+    // Term term3 = Term(Term::TermType::VAR, "z");
 
 
 
     // vector<RdfIndex::Triple> results= rdfIndex.evaluate(term1, term2, term3);
 
-    for (auto & it: rdfIndex.evaluate(term1, term2, term3)) { //TASK not it yet
-        for(auto & mapping: it){
-            cout<<(std::get<0>(mapping)).name << " -> " <<(std::get<1>(mapping)).value << " " ; //
-        }
-        cout<<endl;
-    }
+    // for (auto & it: rdfIndex.evaluate(term1, term2, term3)) { //TASK not it yet
+    //     for(auto & mapping: it){
+    //         cout<<(std::get<0>(mapping)).name << " -> " <<(std::get<1>(mapping)).value << " " ; //
+    //     }
+    //     cout<<endl;
+    // }
 
+    // for (auto & it = rdfIndex.evaluate(term1, term2, term3); it!=-1; it++) { //TASK not it yet
+        // for(auto & mapping: it*){
+        //     cout<<(std::get<0>(mapping)).name << " -> " <<(std::get<1>(mapping)).value << " " ; //
+        // }
+        // cout<<(rdfIndex.evaluate2(term1, term2, term3).curTriplePtr)<<endl;
+    //     RdfIndex::Iterator resultingIterator = rdfIndex.evaluate2(term1, term2, term3);
     
+    // subtempIteratorType  mappingVector;
+    
+    // cout<<"Index search case: "<<resultingIterator.CASE<<endl;
+    // for(RdfIndex::Iterator & it=rdfIndex.evaluate2(term1, term2, term3); it!=rdfIndex.end(); ++it ){
+        
+    //     mappingVector = *(it);
+    //     for(auto & mapping: mappingVector){
+    //         cout<<(std::get<0>(mapping)).name << " -> " <<(std::get<1>(mapping)).value << " " ; //
+    //     }
+    //     cout<<endl;
+    // }
+        
+
+
+        // cout<<(std::get<0>((mapping)).name << " :-> " <<(std::get<1>(mapping)).value << " " <<std::endl; //
+    // }
+
 
     return true;
 }

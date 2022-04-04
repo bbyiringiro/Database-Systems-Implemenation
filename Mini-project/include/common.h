@@ -9,6 +9,10 @@ typedef unsigned int id_t;
 typedef signed int triple_pointer_t; // TASK the papers' pointer is 6 bytes  and problably unsigned with special case for null or -1
 
 
+
+
+
+
 class Term{
     public:
         //variable place holders

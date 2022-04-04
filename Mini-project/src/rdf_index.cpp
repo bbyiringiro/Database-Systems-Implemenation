@@ -94,7 +94,7 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
 
 // TASK helper
 
-subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term){
+subtempIteratorType RdfIndex::mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term){
     subtempIteratorType mappings;
     if(s_term.isVariable()){
        mappingType t = make_tuple( s_term, Term(Term::TermType::LITERAL,row.Rs, s_term.name) );  // TASK not necessary literal ... .. and the third arugment is for debugging purposesimplement a way to find type of terms from their intiger encodings..
@@ -107,7 +107,7 @@ subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p
     // }
 
     if(p_term.isVariable()){
-         mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp, p_term.name));
+        mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp, p_term.name));
         mappings.push_back(t);  
     }
     // else{
@@ -116,7 +116,7 @@ subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p
     // }
 
     if(o_term.isVariable()){
-         mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro, o_term.name));
+        mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro, o_term.name));
         mappings.push_back(t);  
     }
     // else{
@@ -130,21 +130,18 @@ subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p
 }
 
 
+RdfIndex::Iterator& RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
 
-// TASK implement this as an iterator
-
-tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
-
-    tempIterator result;
-    //bindings
+//     tempIterator result;
+//     //bindings
 
     //(s, p, o) 
     if( !s_term.isVariable() && !p_term.isVariable() && !o_term.isVariable() ){
         tuple<id_t, id_t, id_t> tempT = make_tuple(s_term.value, p_term.value, o_term.value);
         if(Ispo.find(tempT) != Ispo.end()){
             triple_pointer_t T = Ispo[tempT];
-            auto row = tripleTable[T];
-            result.push_back(mapVariables(row, s_term, p_term, o_term));
+            currIterator.update(T, &s_term, &p_term, &o_term, 0);
+            return ++currIterator;// ++take the iterator to the match
         }
 
     }
@@ -155,31 +152,19 @@ tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //
             if(Is.find(s_term.value) != Is.end()){
                 triple_pointer_t T = Is[s_term.value];
 
-                while(T != -1){ //traverslse ip list
-                    auto row = tripleTable[T];
-                    T = tripleTable[T].nextptr[Nsp];
-                    if(row.Ro != o_term.value) continue;
-                    result.push_back(mapVariables(row, s_term, p_term, o_term));
-                }
+                currIterator.update(T, &s_term, &p_term, &o_term, 1);
+                return ++currIterator; //++take the iterator to the first matching element
             }
             
-
+            
         }else{ // else if op list is shorter
 
             if(Io.find(o_term.value) != Io.end()){
                 triple_pointer_t T = Io[o_term.value];
-
-                while(T != -1){ //traverslse ip list
-                    auto row = tripleTable[T];
-                    T = tripleTable[T].nextptr[Nop];
-                    if(row.Rs != s_term.value) continue;
-                    result.push_back(mapVariables(row, s_term, p_term, o_term));
-                }
+                currIterator.update(T, &s_term, &p_term, &o_term, 2);
+                return ++currIterator;
             }
-
-
         }
-
 
     }
     //(?, p, o) 
@@ -189,17 +174,12 @@ tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //
         if(Iop.find(op_key_index) != Iop.end()) {
             triple_pointer_t T = Iop[op_key_index];
             auto row = tripleTable[T];
-
-            while(row.Rp == p_term.value){ //traverslse ip list until Rp!=p
-                result.push_back(mapVariables(row, s_term, p_term, o_term));
-                T = tripleTable[T].nextptr[Nop];
-                if (T == -1) break;
-                row = tripleTable[T];
-            }
+            currIterator.update(T, &s_term, &p_term, &o_term, 3);
+            return ++currIterator;
         }
 
     }
-    //(s, p, ?) 
+    //(s, p, ?) --
     else if(!s_term.isVariable() && !p_term.isVariable()&& o_term.isVariable()){
         
         tuple<id_t, id_t> sp_key_index=make_tuple(s_term.value,p_term.value);
@@ -207,29 +187,19 @@ tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //
         if(Isp.find(sp_key_index) != Isp.end()) {
             triple_pointer_t T = Isp[sp_key_index];
             auto row = tripleTable[T];
+            currIterator.update(T, &s_term, &p_term, &o_term, 4);
+            return ++currIterator;
 
-            while(row.Rp ==p_term.value){ //traverslse sp list until Rp!=p or T=-1
-                result.push_back(mapVariables(row, s_term, p_term, o_term));
-                T = tripleTable[T].nextptr[Nsp];
-                if (T == -1) break;
-                row = tripleTable[T];
-            }
         }
 
     }
-    // //(?, ?, o)
+    //(?, ?, o) --
     else if(s_term.isVariable() && p_term.isVariable() && !o_term.isVariable() ){
 
         if(Io.find(o_term.value) != Io.end()){
             triple_pointer_t T = Io[o_term.value];
-
-            while(T != -1){ //traverslse ip list
-                auto row = tripleTable[T];
-                T = tripleTable[T].nextptr[Nop];
-                if(s_term.name == p_term.name)
-                    if(row.Rs != row.Rp) continue;
-                result.push_back(mapVariables(row, s_term, p_term, o_term));
-            }
+            currIterator.update(T, &s_term, &p_term, &o_term, 5);
+            return ++currIterator;
         }
         
 
@@ -238,51 +208,31 @@ tempIterator RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //
     else if(!s_term.isVariable() && p_term.isVariable() && o_term.isVariable()){
         if(Is.find(s_term.value) != Is.end()){
             triple_pointer_t T = Is[s_term.value];
-
-            while(T != -1){ //traverslse ip list
-                auto row = tripleTable[T];
-                T = tripleTable[T].nextptr[Nsp];
-                if(p_term.name == o_term.name)
-                    if(row.Rp != row.Ro) continue;
-                result.push_back(mapVariables(row, s_term, p_term, o_term));
-            }
+            currIterator.update(T, &s_term, &p_term, &o_term, 6);
+            return ++currIterator;
         }
 
     }
-    //(?, p, ?)
+    // //(?, p, ?)
     else if(s_term.isVariable() && !p_term.isVariable() && o_term.isVariable()){
 
         if(Ip.find(p_term.value) != Ip.end()){
             triple_pointer_t T = Ip[p_term.value];
+            currIterator.update(T, &s_term, &p_term, &o_term, 7);
+            return ++currIterator;
 
-            while(T != -1){ //traverslse p list
-                auto row = tripleTable[T];
-                T = tripleTable[T].nextptr[Np];
-                if(s_term.name == o_term.name)
-                    if(row.Rs != row.Ro) continue;
-                result.push_back(mapVariables(row, s_term, p_term, o_term));
-            }
         }
 
     }
     //(?, ?, ?)
     else if(s_term.isVariable() && p_term.isVariable() && o_term.isVariable()){
-        for(auto & row: tripleTable){
-            if(s_term.name == p_term.name)
-                if(row.Rs != row.Rp) continue;
-            
-            if(p_term.name == o_term.name)
-                if(row.Rp != row.Ro) continue;
-
-            if(s_term.name == o_term.name)
-                if(row.Rs != row.Ro) continue;
-            
-            result.push_back(mapVariables(row, s_term, p_term, o_term));
-
-        }
+        currIterator.update(0, &s_term, &p_term, &o_term, 8);
+        return ++currIterator;
 
     }
-    return result;
+    // points no the end
+    currIterator.update(INDEX_END_PTR, &s_term, &p_term, &o_term, -1); //case -1 // the default
+    return currIterator;
 }
 
 
@@ -296,3 +246,360 @@ void RdfIndex::insert_xy_list(triple_pointer_t & Tnew, triple_pointer_t & T, Tri
     Rnew.nextptr[Nidx]=Tnext;
     tripleTable[T].nextptr[Nidx]=Tnew;
 }
+
+
+RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
+                    switch(CASE){
+                        case 0: //(s, p, o) 
+                        {
+                            if(nextPtr != INDEX_END_PTR){  
+                                curTriplePtr=nextPtr;
+                                nextPtr=INDEX_END_PTR;
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 1: //(s, ?, o) 
+                        {
+                            if(nextPtr != INDEX_END_PTR){  //sp-list
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                
+                                while(nextPtr !=INDEX_END_PTR && row.Ro != (*o_term).value) {
+                                    nextPtr = row.nextptr[rdfIndex.Nsp];
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                }
+                                if(row.Ro == (*o_term).value){
+                                    curTriplePtr = nextPtr;
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                    if(nextPtr!=INDEX_END_PTR)
+                                        nextPtr = row.nextptr[rdfIndex.Nsp];
+                                }else{
+                                    curTriplePtr= nextPtr;
+                                }
+                            }else{ // if nxt INDEX_END_PTR
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 2:
+                        {
+                            //symetric to case 1
+
+                            if(nextPtr != INDEX_END_PTR){  //op-list
+
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                
+                                while(nextPtr !=INDEX_END_PTR && row.Rs != (*s_term).value) {
+                                    nextPtr = row.nextptr[rdfIndex.Nop];
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                }
+                                if(row.Rs == (*s_term).value){
+                                    curTriplePtr = nextPtr;
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                    if(nextPtr!=INDEX_END_PTR)
+                                        nextPtr = row.nextptr[rdfIndex.Nop];
+                                }else{
+                                    curTriplePtr= nextPtr;
+                                }
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 3: //(?, p, o) 
+                        {
+                            if(nextPtr != INDEX_END_PTR){
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                if(row.Rp == (*p_term).value){
+                                   curTriplePtr = nextPtr;
+                                   nextPtr=row.nextptr[rdfIndex.Nop];
+                                }else{
+                                    curTriplePtr = INDEX_END_PTR;
+                                    nextPtr=INDEX_END_PTR;
+                                }  
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 4:  // symmetric to case 3
+                        {
+                            if(nextPtr != INDEX_END_PTR){
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                if(row.Rp == (*p_term).value){
+                                   curTriplePtr = nextPtr;
+                                   nextPtr=row.nextptr[rdfIndex.Nsp];
+                                }else{
+                                    curTriplePtr = INDEX_END_PTR;
+                                    nextPtr=INDEX_END_PTR;
+                                }  
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            
+                            break;
+                        }
+                        case 5://(?, ?, o) similar to case 1
+                        {
+                            if(nextPtr != INDEX_END_PTR){  //op-list
+
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                
+                                while(nextPtr !=INDEX_END_PTR &&
+                                    (*s_term).name == (*p_term).name&&
+                                    row.Rs != row.Rp) {
+                                    nextPtr = row.nextptr[rdfIndex.Nop];
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                }
+                                
+                                curTriplePtr = nextPtr;
+                                nextPtr = row.nextptr[rdfIndex.Nop];
+                                // if(nextPtr!=INDEX_END_PTR)
+                                //     nextPtr = row.nextptr[rdfIndex.Nop];
+                                
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 6: // //(s, ?, ?) symmetric to case 5
+                        {
+                            if(nextPtr != INDEX_END_PTR){  //sp-list
+
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                
+                                while(nextPtr !=INDEX_END_PTR &&
+                                    (*p_term).name == (*o_term).name&&
+                                    row.Rp != row.Ro) {
+                                    nextPtr = row.nextptr[rdfIndex.Nsp];
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                }
+                                
+                                curTriplePtr = nextPtr;
+                                nextPtr = row.nextptr[rdfIndex.Nsp];
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 7: //(?, p, ?) // symetric to case 6
+                        {
+                            if(nextPtr != INDEX_END_PTR){ 
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                
+                                while(nextPtr !=INDEX_END_PTR &&
+                                    (*s_term).name == (*o_term).name&&
+                                    row.Rs != row.Ro) {
+                                    nextPtr = row.nextptr[rdfIndex.Np];
+                                    row = rdfIndex.tripleTable[nextPtr];
+                                }
+                                
+                                curTriplePtr = nextPtr;
+                                nextPtr = row.nextptr[rdfIndex.Np]; 
+
+                        
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        case 8:
+                        {
+                            if(nextPtr != INDEX_END_PTR){
+                                auto index_size=rdfIndex.getTablesize();
+                                auto & row = rdfIndex.tripleTable[nextPtr];
+                                while(index_size >nextPtr &&(
+                                        ((*s_term).name == (*p_term).name && row.Rs != row.Rp ) || // (x,x,y)
+                                        ((*p_term).name == (*o_term).name && row.Rp != row.Ro ) ||    //(x, y, y)
+                                        ((*s_term).name == (*o_term).name && row.Rs != row.Ro ) //(x, y, x)
+                                        )
+                                    ){ 
+                                    row = rdfIndex.tripleTable[++nextPtr];   
+                                }
+                                
+                                if(nextPtr>=rdfIndex.getTablesize()){
+                                    nextPtr = INDEX_END_PTR;
+                                    curTriplePtr=INDEX_END_PTR;
+                                }else{
+                                    curTriplePtr = nextPtr;
+                                    ++nextPtr;
+                                }
+                        
+                            }else{
+                                curTriplePtr= nextPtr;
+                            }
+                            break;
+                        }
+                        default:
+                        {   
+                            curTriplePtr = -1;
+                            nextPtr = -1;
+                            //current pointing to non index...
+                            break;
+                        }
+
+                        
+                    }
+                    
+                    return *this;
+                }
+
+
+
+
+
+
+//version 1 evaluate without iterator 
+// tempIterator RdfIndex::evaluate2(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
+
+//     tempIterator result;
+//     //bindings
+
+//     //(s, p, o) 
+//     if( !s_term.isVariable() && !p_term.isVariable() && !o_term.isVariable() ){
+//         tuple<id_t, id_t, id_t> tempT = make_tuple(s_term.value, p_term.value, o_term.value);
+//         if(Ispo.find(tempT) != Ispo.end()){
+//             triple_pointer_t T = Ispo[tempT];
+//             auto row = tripleTable[T];
+//             result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//         }
+
+//     }
+//     //(s, ?, o) 
+//     else if( !s_term.isVariable() && p_term.isVariable() && !o_term.isVariable() ){
+
+//         if(sp_linked_list_size < op_linked_list_size){ // if sp-list is shorter
+//             if(Is.find(s_term.value) != Is.end()){
+//                 triple_pointer_t T = Is[s_term.value];
+
+//                 while(T != -1){ //traverslse ip list
+//                     auto row = tripleTable[T];
+//                     T = tripleTable[T].nextptr[Nsp];
+//                     if(row.Ro != o_term.value) continue;
+//                     result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//                 }
+//             }
+            
+
+//         }else{ // else if op list is shorter
+
+//             if(Io.find(o_term.value) != Io.end()){
+//                 triple_pointer_t T = Io[o_term.value];
+
+//                 while(T != -1){ //traverslse ip list
+//                     auto row = tripleTable[T];
+//                     T = tripleTable[T].nextptr[Nop];
+//                     if(row.Rs != s_term.value) continue;
+//                     result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//                 }
+//             }
+
+
+//         }
+
+
+//     }
+//     //(?, p, o) 
+//     else if(s_term.isVariable() && !p_term.isVariable() && !o_term.isVariable() ){
+//         tuple<id_t, id_t> op_key_index=make_tuple(o_term.value,p_term.value);
+        
+//         if(Iop.find(op_key_index) != Iop.end()) {
+//             triple_pointer_t T = Iop[op_key_index];
+//             auto row = tripleTable[T];
+
+//             while(row.Rp == p_term.value){ //traverslse ip list until Rp!=p
+//                 result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//                 T = tripleTable[T].nextptr[Nop];
+//                 if (T == -1) break;
+//                 row = tripleTable[T];
+//             }
+//         }
+
+//     }
+//     //(s, p, ?) 
+//     else if(!s_term.isVariable() && !p_term.isVariable()&& o_term.isVariable()){
+        
+//         tuple<id_t, id_t> sp_key_index=make_tuple(s_term.value,p_term.value);
+        
+//         if(Isp.find(sp_key_index) != Isp.end()) {
+//             triple_pointer_t T = Isp[sp_key_index];
+//             auto row = tripleTable[T];
+
+//             while(row.Rp ==p_term.value){ //traverslse sp list until Rp!=p or T=-1
+//                 result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//                 T = tripleTable[T].nextptr[Nsp];
+//                 if (T == -1) break;
+//                 row = tripleTable[T];
+//             }
+//         }
+
+//     }
+//     // //(?, ?, o)
+//     else if(s_term.isVariable() && p_term.isVariable() && !o_term.isVariable() ){
+
+//         if(Io.find(o_term.value) != Io.end()){
+//             triple_pointer_t T = Io[o_term.value];
+
+//             while(T != -1){ //traverslse ip list
+//                 auto row = tripleTable[T];
+//                 T = tripleTable[T].nextptr[Nop];
+//                 if(s_term.name == p_term.name)
+//                     if(row.Rs != row.Rp) continue;
+//                 result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//             }
+//         }
+        
+
+//     }
+//     //(s, ?, ?)
+//     else if(!s_term.isVariable() && p_term.isVariable() && o_term.isVariable()){
+//         if(Is.find(s_term.value) != Is.end()){
+//             triple_pointer_t T = Is[s_term.value];
+
+//             while(T != -1){ //traverslse ip list
+//                 auto row = tripleTable[T];
+//                 T = tripleTable[T].nextptr[Nsp];
+//                 if(p_term.name == o_term.name)
+//                     if(row.Rp != row.Ro) continue;
+//                 result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//             }
+//         }
+
+//     }
+//     //(?, p, ?)
+//     else if(s_term.isVariable() && !p_term.isVariable() && o_term.isVariable()){
+
+//         if(Ip.find(p_term.value) != Ip.end()){
+//             triple_pointer_t T = Ip[p_term.value];
+
+//             while(T != -1){ //traverslse p list
+//                 auto row = tripleTable[T];
+//                 T = tripleTable[T].nextptr[Np];
+//                 if(s_term.name == o_term.name)
+//                     if(row.Rs != row.Ro) continue;
+//                 result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+//             }
+//         }
+
+//     }
+//     //(?, ?, ?)
+//     else if(s_term.isVariable() && p_term.isVariable() && o_term.isVariable()){
+//         for(auto & row: tripleTable){
+//             if(s_term.name == p_term.name)
+//                 if(row.Rs != row.Rp) continue;
+            
+//             if(p_term.name == o_term.name)
+//                 if(row.Rp != row.Ro) continue;
+
+//             if(s_term.name == o_term.name)
+//                 if(row.Rs != row.Ro) continue;
+            
+//             result.push_back(RdfIndex::mapVariables(row, s_term, p_term, o_term));
+
+//         }
+
+//     }
+//     return result;
+// }
+
