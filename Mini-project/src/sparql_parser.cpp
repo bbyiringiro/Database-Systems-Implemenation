@@ -14,10 +14,10 @@ void toUpperStr(std::string & str);
 
 
 
-SparqlParser::SparqlParser(unordered_map<std::string, int> &  _res_2_id_map):Parser(queryBuffer, QUERY_READ_BUFFER_SIZE), res_2_id_map(_res_2_id_map){
+SparqlParser::SparqlParser(id_2_resource_type &  _res_2_id_map):Parser(queryBuffer, QUERY_READ_BUFFER_SIZE), res_2_id_map(_res_2_id_map){
 }
 
-SparqlParser::SparqlParser(unordered_map<std::string, int> & _res_2_id_map, std::ifstream  &_filestream):Parser(_filestream, queryBuffer, QUERY_READ_BUFFER_SIZE),res_2_id_map(_res_2_id_map){
+SparqlParser::SparqlParser(id_2_resource_type & _res_2_id_map, std::ifstream  &_filestream):Parser(_filestream, queryBuffer, QUERY_READ_BUFFER_SIZE),res_2_id_map(_res_2_id_map){
 
 }
 
@@ -231,12 +231,13 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
                 return false;
             }
             t.name = name;
-            if(res_2_id_map.find(name) == res_2_id_map.end()){
+            auto iri_key=make_tuple(name, true);
+            if(res_2_id_map.find(iri_key) == res_2_id_map.end()){
                 //TASK uncomment
                 std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
                 return false; // TASK is this necessary
             }
-            t.value=res_2_id_map[name];
+            t.value=res_2_id_map[iri_key];
         }
 
         else if(ch =='\"'){
@@ -248,13 +249,14 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
                 return false;
             }
             t.name = name;
-            if(res_2_id_map.find(name) == res_2_id_map.end()){
+            auto literal_key=make_tuple(name, false);
+            if(res_2_id_map.find(literal_key) == res_2_id_map.end()){
                 //TASK
 
                 std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
                 return false;
             }
-            t.value=res_2_id_map[name];
+            t.value=res_2_id_map[literal_key];
         }
 
         else if(ch =='?'){

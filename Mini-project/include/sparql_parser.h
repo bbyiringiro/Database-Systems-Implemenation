@@ -17,7 +17,7 @@ class SparqlParser: public Parser
 
 
 
-    unordered_map<std::string, int> & res_2_id_map;
+    id_2_resource_type & res_2_id_map;
 
     private:
         const static size_t QUERY_READ_BUFFER_SIZE = 1024;
@@ -25,9 +25,9 @@ class SparqlParser: public Parser
 
 
     public:
-        SparqlParser(unordered_map<std::string, int> &  res_2_id_map);
+        SparqlParser(id_2_resource_type &  res_2_id_map);
 
-        SparqlParser(unordered_map<std::string, int> &  res_2_id_map, std::ifstream & _filestream );
+        SparqlParser(id_2_resource_type &  res_2_id_map, std::ifstream & _filestream );
         Query parseQuery();
         Query parseStringQuery(std::string queryString);
 

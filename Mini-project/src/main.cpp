@@ -16,6 +16,8 @@
 #include "sparql_parser.h"
 #include "rdf_index.h"
 #include "sparql_parser.h"
+#include"engine.h"
+
 
 
 #include "test.h"
@@ -28,7 +30,7 @@ using std::unordered_map;
 
 // Resources  dictionary integer encoding:
 // Resource -> ID
-unordered_map<std::string, int> res_2_id_map;
+id_2_resource_type res_2_id_map;
 //ID -> (resource, resourceType)
 vector<tuple<std::string, bool>> id_2_res_v; // bool incates whether a resource is variable or literall
 RdfIndex rdfIndex;
@@ -49,29 +51,24 @@ void register_commands()
 //TASK
 // - handle LOAD filename1 filename2 'file name'3
 
-
+void parseTurtleFile(std::string file_name, vector<tuple<std::string, bool>>  & id_2_res_v, id_2_resource_type & res_2_id_map, RdfIndex & rdfIndex);
 // The component implementing the command line interface outlined above
 int main(int argc, char const *argv[])
 {
 
 
     register_commands(); // registers allowed command for the CLI
+    SparqlParser sparqlParser(res_2_id_map); // start query parser instance
     std::string input;
 
+
+    // ---------------------------
     // std::ifstream _fin("/users/ms21jcbb/Practicals/DSI/data/q01.txt");
 
     // SparqlParser sparqlParser(res_2_id_map, _fin);
-    // Query query =sparqlParser.parseQuery();
-    // SparqlParser sparqlParser(res_2_id_map);
-
-    
-
-
+    // Query query =sparqlParser.parseQuery()
 
     // std::string temps = "SELECT ?Xm WHERE {?X  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>             <http://swat.cse.lehigh.edu/onto/univ-bench.owl#GraduateStudent>  . ?X <http://swat.cse.lehigh.edu/onto/univ-bench.owl#takesCourse> <http://www.Department0.University0.edu/GraduateCourse0>          .}";
-    
-
-
     
 
 
@@ -79,13 +76,14 @@ int main(int argc, char const *argv[])
     //tests
     // test_rdf_ds_add(rdfIndex);
     // test_rdf_ds_evaluate(rdfIndex);
-    std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl"); //TASK putting in the file stream
-    TurtleParser turtleParser(turtleFile);
-    bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
-    test_query(res_2_id_map,id_2_res_v, rdfIndex);
+    // std::ifstream turtleFile("/users/ms21jcbb/Practicals/DSI/data/LUBM-001-mat.ttl"); //TASK putting in the file stream
+    // TurtleParser turtleParser(turtleFile);
+    // bool statustmep = turtleParser.parseFile("temp...", id_2_res_v, res_2_id_map, rdfIndex);//TASK
+    // test_query(res_2_id_map,id_2_res_v, rdfIndex);
     // test_query_optimiser();
 
-    return 0;
+    // -----------------------
+
     
 
 
@@ -104,29 +102,33 @@ int main(int argc, char const *argv[])
         switch (COMMANDS[input_action])
         {
         case LOAD:
-            {
+        {
             std::cout<<"LOAD" << std::endl;
             if(command_idx ==-1){
-                std::cerr<<"Error: Pleae provide a filename " << std::endl;
+                std::cerr<<"Error: Pleae provide a filename after LOAD command" << std::endl;
                 usageHelpMessage();
                 break;
             }
             std::string filename = trim_copy(input.substr(command_idx));
-            
-            std::cout<<filename << std::endl;
-            // bool status = turtleParser.parseFile(id_2_res_v, res_2_id_map, rdfIndex);
-            // print(status); //TO BE CHANGED
-            
+            parseTurtleFile(filename, id_2_res_v, res_2_id_map, rdfIndex);
             break;
         }
         case SELECT:
+        {
             std::cout<<"SELECT" << std::endl;
-            // sparqlParser.parseStringQuery(input);
+            Query query = sparqlParser.parseStringQuery(input);
+            Engine queryEngine(rdfIndex, id_2_res_v);
+            queryEngine.print_query_answers(query);
             break;
-        case COUNT:
+
+        }
+        case COUNT:{
             std::cout<<"COUNT " << std::endl;
-            // sparqlParser.parseStringQuery(input);
+            Query query = sparqlParser.parseStringQuery(input);
+            Engine queryEngine(rdfIndex, id_2_res_v);
+            queryEngine.print_query_answers(query);
             break;
+        }
         case QUIT:
             std::cout<<"Quitting ..." << std::endl;
             return 0;
@@ -137,9 +139,28 @@ int main(int argc, char const *argv[])
         }
 
 
-    }while(true);
+    }while(1);
 
     return 0;
+}
+
+
+void parseTurtleFile(std::string file_name, vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_map, RdfIndex & rdfIndex){
+
+    std::ifstream turtleFileStream(file_name);
+    if(turtleFileStream.is_open()){
+
+        TurtleParser turtleParser(turtleFileStream);
+        bool loadStatus = turtleParser.parseFile(id_2_res_v, res_2_id_map, rdfIndex);
+        if(!loadStatus){
+            std::cout<<"Failed to parse the give turtle file, refer to the messge above to see why parsing failed"<<std::endl;
+        }
+
+
+    }else{
+        std::cout<<"Error: Could not open the file at: "<<file_name<<std::endl;
+    }
+
 }
 
 

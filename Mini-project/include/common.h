@@ -7,6 +7,7 @@
 
 typedef unsigned int id_t;
 typedef signed int triple_pointer_t; // TASK the papers' pointer is 6 bytes  and problably unsigned with special case for null or -1
+using id_2_resource_type = std::unordered_map<std::tuple<std::string, bool>, int>;
 
 
 
