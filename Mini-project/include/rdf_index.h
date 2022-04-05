@@ -38,7 +38,7 @@ class RdfIndex{
                     CASE = 8; //for (?, ?, ?)  so the iterator traverse the whole index starting form curTriplePtr where the default should 0
                 }
 
-                bool update(triple_pointer_t curT, Term * _s_term, Term * _p_term, Term * _o_term, short _case){
+                void update(triple_pointer_t curT, Term * _s_term, Term * _p_term, Term * _o_term, short _case){
                         curTriplePtr=curT;
                         nextPtr = curT;
                         s_term=_s_term;
@@ -109,7 +109,7 @@ class RdfIndex{
 
         std::vector<Triple> tripleTable;
         // IndexIterator iterator;
-        RdfIndex():currIterator(Iterator((triple_pointer_t)0, *this)), endIterator(-1, *this){
+        RdfIndex():currIterator(Iterator(-1, *this)), endIterator(-1, *this){
             // triple_pointer_t t=0;
             // currIterator = Iterator(0);
         }

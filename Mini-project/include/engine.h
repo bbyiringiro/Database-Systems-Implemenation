@@ -11,7 +11,7 @@ class Engine{
 
         Engine(RdfIndex & _rdfIndex, vector<tuple<std::string, bool>> & _id_2_res_v):rdfIndex(_rdfIndex), id_2_res_v(_id_2_res_v){}
 
-        void print_query_answers(Query & query);
+        int print_query_answers(Query & query);
         void nested_index_loop_join(Query & query, std::vector<TriplePattern> * patternsPtr, string2term_map variablesMap, int pattern_index);
 
         RdfIndex & rdfIndex; //TASK

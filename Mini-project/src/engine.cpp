@@ -7,39 +7,45 @@
 #include"engine.h"
 #include "query_optimiser.h"
 
-
-void Engine::print_query_answers(Query & query){
+int Engine::print_query_answers(Query & query){
 //     // Optmise the next merge join to do here ..and by sorting the patterns
-    string2term_map variablesMap;
-    std::cout<<"Printing Query" <<std::endl;
-    int mapSize= query.mappingVariables.size();
-    for(int i = 0; i<mapSize; ++i){
-        std::cout<<query.mappingVariables[i].name;
-        if(i+1 != mapSize) std::cout<<"\t";
+    if(query.size()>0){
+        string2term_map variablesMap;
 
+        // prints the variable names
+        if(query.command == Query::COMMAND::SELECT){ 
+            int mapSize= query.mappingVariables.size();
+            for(int i = 0; i<mapSize; ++i){ 
+                std::cout<<"?"<<query.mappingVariables[i].name;
+                if(i+1 != mapSize) std::cout<<"\t";
+            }
+            std::cout<<"\n";
+        }
+
+        results_counter = 0;
+        // std::cout<<"query.command "<< query.command << endl;
+        // //DEBUG
+        // cout<<"before optimiser size("<<query.triplePatterns.size()<<std::endl;
+        // for (auto & pattern: query.triplePatterns){
+        //     cout<<pattern.subject.name<<" < ";
+        // }
+        // cout<<std::endl;
+        auto optimisedQueryPatterns = planQuery(query.triplePatterns);
+
+        // cout<<"after optimiser ("<<optimisedQueryPatterns.size()<<std::endl;
+
+        // for (auto & pattern: optimisedQueryPatterns){
+        //     cout<<pattern.subject.name<<" < ";
+        // }
+        // cout<<"querying now..."<<endl;
+        nested_index_loop_join( query, &optimisedQueryPatterns, variablesMap, 0);
+
+        // if(query.command == Query::COMMAND::COUNT){
+            // std::cout<<"Number of results is : "<<results_counter<<std::endl;
+        // }
+        return results_counter;
     }
-    std::cout<<"\n";
-    results_counter = 0;
-    std::cout<<"query.command "<< query.command << endl;
-    // //DEBUG
-    // cout<<"before optimiser size("<<query.triplePatterns.size()<<std::endl;
-    // for (auto & pattern: query.triplePatterns){
-    //     cout<<pattern.subject.name<<" < ";
-    // }
-    // cout<<std::endl;
-    auto optimisedQueryPatterns = planQuery(query.triplePatterns);
-
-    // cout<<"after optimiser ("<<optimisedQueryPatterns.size()<<std::endl;
-
-    // for (auto & pattern: optimisedQueryPatterns){
-    //     cout<<pattern.subject.name<<" < ";
-    // }
-    // cout<<"querying now..."<<endl;
-    nested_index_loop_join( query, &optimisedQueryPatterns, variablesMap, 0);
-
-    // if(query.command == Query::COMMAND::COUNT){
-        std::cout<<"Number of results is : "<<results_counter<<std::endl;
-    // }
+    else return -1;
          
 
 }
@@ -109,22 +115,22 @@ void substituteVAr(std::vector<TriplePattern> * patternsPtr, std::vector<TripleP
 
 void Engine::nested_index_loop_join(Query & query, std::vector<TriplePattern> * patternsPtr, string2term_map variablesMap, int pattern_index){ //TASK pass query by reference
     // cout<< "-top " <<pattern_index <<std::endl; 
+    // double check if query is empty... // solved
 
     if( pattern_index == query.size() ){
         if(query.command == Query::COMMAND::SELECT){
             for(Term  mappingVar: query.mappingVariables){
                 
-
                 std::cout<<id2VariableConverter(variablesMap[mappingVar.name].value) << "\t"; //TASK remove the last tab
             }
             std::cout<<std::endl;
         }
         // std::cout<<"query.command "<< query.command << endl;
 
-
+        results_counter++;
 
         
-        results_counter++;
+        
     }
     else{
         auto & patterns = *patternsPtr; // vector is not copied here

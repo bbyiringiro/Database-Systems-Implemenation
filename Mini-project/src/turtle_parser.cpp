@@ -125,7 +125,7 @@ bool TurtleParser::parseResource(std::string & resource_name, bool & resourceTyp
 
 }
 
-bool TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_map, RdfIndex & rdfIndex){
+int TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_map, RdfIndex & rdfIndex){
 
     in_stream.clear();
 
@@ -193,10 +193,10 @@ bool TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2
  
     }
 
-    std::cout <<"resource lenght: "<< id_2_res_v.size() <<"=="<<res_2_id_map.size() << std::endl;
-    std::cout <<"RdfIndex size: "<< rdfIndex.getTablesize() << std::endl;
-    std::cout <<"Triple Number:  "<< triples_num << std::endl;
-    return true;
+    // std::cout <<"resource lenght: "<< id_2_res_v.size() <<"=="<<res_2_id_map.size() << std::endl;
+    // std::cout <<"RdfIndex size: "<< rdfIndex.getTablesize() << std::endl;
+    // std::cout <<"Triple Number:  "<< triples_num << std::endl;
+    return triples_num;
     
 }
 

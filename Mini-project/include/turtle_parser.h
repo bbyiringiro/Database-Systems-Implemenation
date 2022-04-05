@@ -35,7 +35,7 @@ class TurtleParser: public Parser
     public:
         TurtleParser();
         TurtleParser(std::ifstream  &_filestream );
-        bool parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_m, RdfIndex & tripleTable);//TASK static 
+        int parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_m, RdfIndex & tripleTable);//TASK static 
 
 
     

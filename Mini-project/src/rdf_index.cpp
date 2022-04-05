@@ -28,7 +28,7 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
         if(Isp.find(sp_key_index) != Isp.end()) {
             triple_pointer_t T = Isp[sp_key_index];
             insert_xy_list(Tnew, T, Rnew, Nsp);
-            sp_linked_list_size++;
+            sp_linked_list_size++; // for stats
 
         }else{
             Isp[sp_key_index] = Tnew;
@@ -36,7 +36,7 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
             if(Is.find(s) != Is.end()){
                 triple_pointer_t T = Is[s];
                 insert_xy_list(Tnew, T, Rnew, Nsp);
-                sp_linked_list_size++;
+                sp_linked_list_size++; // for stats
             }else{
                 Is[s]=Tnew;
             }
@@ -75,7 +75,6 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
             }
         }
 
-
         tripleTable.push_back(Rnew);
 
         
@@ -91,6 +90,12 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
     return false;
 }
 
+// The 
+void RdfIndex::insert_xy_list(triple_pointer_t & Tnew, triple_pointer_t & T, Triple & Rnew, unsigned short columnId){
+    triple_pointer_t Tnext = tripleTable[T].nextptr[columnId]; 
+    Rnew.nextptr[columnId]=Tnext;
+    tripleTable[T].nextptr[columnId]=Tnew;
+}
 
 // TASK helper
 
@@ -137,12 +142,16 @@ RdfIndex::Iterator& RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_te
 
     //(s, p, o) 
     if( !s_term.isVariable() && !p_term.isVariable() && !o_term.isVariable() ){
-        tuple<id_t, id_t, id_t> tempT = make_tuple(s_term.value, p_term.value, o_term.value);
-        if(Ispo.find(tempT) != Ispo.end()){
-            triple_pointer_t T = Ispo[tempT];
-            currIterator.update(T, &s_term, &p_term, &o_term, 0);
-            return ++currIterator;// ++take the iterator to the match
-        }
+        tuple<id_t, id_t, id_t> tripleKey = make_tuple(s_term.value, p_term.value, o_term.value);
+        // since no variable to map as on optimisation simply return empty iterator
+        currIterator.update(INDEX_END_PTR, &s_term, &p_term, &o_term, -1);
+        return currIterator;
+        // this apply if we were just matching ...
+        // if(Ispo.find(tripleKey) != Ispo.end()){
+        //     triple_pointer_t T = Ispo[tripleKey];
+        //     currIterator.update(T, &s_term, &p_term, &o_term, 0);
+        //     return ++currIterator;// ++take the iterator to the match
+        // }
 
     }
     //(s, ?, o) 
@@ -241,11 +250,6 @@ triple_pointer_t RdfIndex::getTablesize(){
     return (triple_pointer_t) tripleTable.size();
 }
 
-void RdfIndex::insert_xy_list(triple_pointer_t & Tnew, triple_pointer_t & T, Triple & Rnew, unsigned short Nidx){
-    triple_pointer_t Tnext = tripleTable[T].nextptr[Nidx]; 
-    Rnew.nextptr[Nidx]=Tnext;
-    tripleTable[T].nextptr[Nidx]=Tnew;
-}
 
 
 RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
@@ -284,7 +288,7 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
                         }
                         case 2:
                         {
-                            //symetric to case 1
+                            //symetric to case 1 and handle the same case (s, ?, o) 
 
                             if(nextPtr != INDEX_END_PTR){  //op-list
 
@@ -310,6 +314,7 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
                         case 3: //(?, p, o) 
                         {
                             if(nextPtr != INDEX_END_PTR){
+                                // cout<<"here" <<(*o_term).value;
                                 auto & row = rdfIndex.tripleTable[nextPtr];
                                 if(row.Rp == (*p_term).value){
                                    curTriplePtr = nextPtr;
@@ -323,7 +328,7 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
                             }
                             break;
                         }
-                        case 4:  // symmetric to case 3
+                        case 4:  //(s, p, ?) symmetric to case 3
                         {
                             if(nextPtr != INDEX_END_PTR){
                                 auto & row = rdfIndex.tripleTable[nextPtr];
@@ -355,8 +360,6 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
                                 
                                 curTriplePtr = nextPtr;
                                 nextPtr = row.nextptr[rdfIndex.Nop];
-                                // if(nextPtr!=INDEX_END_PTR)
-                                //     nextPtr = row.nextptr[rdfIndex.Nop];
                                 
                             }else{
                                 curTriplePtr= nextPtr;
@@ -383,7 +386,7 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
                             }
                             break;
                         }
-                        case 7: //(?, p, ?) // symetric to case 6
+                        case 7: //(?, p, ?) // symetric to case 6 but does not 
                         {
                             if(nextPtr != INDEX_END_PTR){ 
                                 auto & row = rdfIndex.tripleTable[nextPtr];

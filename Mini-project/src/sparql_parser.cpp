@@ -99,7 +99,9 @@ Query SparqlParser::parseQuery(){
     // // for(auto & t: query.allVariables) std::cout<< t <<", ";
     // // std::cout<< std::endl;
 
-    processBody(extraCharactersAfterWhere, query);
+    if(!processBody(extraCharactersAfterWhere, query)){
+        return Query();
+    }
 
 
     // Validate
@@ -192,20 +194,20 @@ bool SparqlParser::parsePattern(Term & subject, Term & predicate, Term & object,
 
      if(!parseTerm(subject, lastreadchar, query)) {
         if(lastreadchar !=END_OF_QUERY_CHAR)
-            std::cout<< "Syntax error in the querry near ... "<< subject.name<<std::endl;
+            std::cout<< "Syntax error in the query near ... "<< subject.name<<std::endl;
         return false;
     }
     std::cout<<subject.name<< " -- ";
 
 
     if(!parseTerm(predicate, lastreadchar, query)) {
-        std::cout<< "Syntax error in the querry near ... "<< predicate.name<<std::endl;
+        std::cout<< "Syntax error in the query near ... "<< predicate.name<<std::endl;
         return false;
     }
     std::cout<<predicate.name<< " -- ";
 
     if(!parseTerm(object, lastreadchar, query)) {
-        std::cout<< "Syntax error in the querry near ... "<< object.name<<std::endl;
+        std::cout<< "Syntax error in the query near ... "<< object.name<<std::endl;
         return false;
     }
     std::cout<<object.name<<std::endl;
@@ -235,7 +237,7 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
             if(res_2_id_map.find(iri_key) == res_2_id_map.end()){
                 //TASK uncomment
                 std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
-                return false; // TASK is this necessary
+                return false; // TASK  status instead, whether is just fail or jsut not found in the memeory...
             }
             t.value=res_2_id_map[iri_key];
         }

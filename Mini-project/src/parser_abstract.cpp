@@ -1,4 +1,5 @@
 #include "parser_abstract.h"
+#include<iostream>
 
 
 
@@ -14,6 +15,7 @@ bool Parser::loadBuffer(){
   while(loadBufferPos < READ_BUFFER_SIZE){
     if (in_stream >> std::noskipws >> ch){
         // if (ch == '\n') continue;
+        
 
         BUFFER[loadBufferPos]=ch;
         ++loadBufferPos;
@@ -55,6 +57,7 @@ bool Parser::readToken(std::string & token){
         token +=ch;
         if(!next(ch)) return false;
     }while(!std::isspace(ch));
+    std::cout << token << std::endl;
     return true;
 
 }
