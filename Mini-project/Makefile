@@ -6,8 +6,8 @@ DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
 
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Iinclude 
-# -Wextra
+CXXFLAGS = -std=c++11 -Iinclude 
+# -Wextra -Wall
 .PHONY: all clean
 
 

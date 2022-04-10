@@ -5,6 +5,9 @@
 #include<unordered_map>
 #include <tuple>
 
+
+// This file contian all common functionalities and structures used accross many classes
+
 typedef unsigned int id_t;
 typedef signed int triple_pointer_t; // TASK the papers' pointer is 6 bytes  and problably unsigned with special case for null or -1
 using id_2_resource_type = std::unordered_map<std::tuple<std::string, bool>, int>;
@@ -13,7 +16,14 @@ using id_2_resource_type = std::unordered_map<std::tuple<std::string, bool>, int
 
 
 
-
+enum Status
+{
+  OK, // if everything goes right 
+  FAIL, // when an erro happens
+  DONE, // when an operation does not 
+  NotImplemented
+};
+ 
 class Term{
     public:
         //variable place holders
@@ -60,29 +70,7 @@ class Term{
 
 
 
-      // hash function for Term class
-
-            // hash function for Term class
-
-      //  template <>
-      //   struct hash<Term>
-      //   {
-      //     std::size_t operator()(const Term& k) const
-      //     {
-      //       using std::size_t;
-      //       using std::hash;
-      //       using std::string;
-
-      //       // Compute individual hash values for first,
-      //       // second and third and combine them using XOR
-      //       // and bit shifting:
-
-      //       return ((hash<string>()(k.name)
-      //               ^ (hash<Term::TermType>()(k.type) << 1)) >> 1)
-      //               ^ (hash<int>()(k.value) << 1);
-      //     }
-      //   };
-
+    
 
 
 
@@ -91,8 +79,6 @@ class Term{
 class TriplePattern{
   public:
     Term subject, predicate, object;
-    std::string name; //TASK DEBUG remove
-    TriplePattern(Term s, Term p, Term o, std::string n):name(n), subject(s), predicate(p), object(o){}
     TriplePattern(){}
     TriplePattern(Term s, Term p, Term o):subject(s), predicate(p), object(o){}
 
@@ -115,7 +101,7 @@ class Query{
     };
 
     COMMAND command;
-    std::vector<Term> mappingVariables; //TASK could be just a string??
+    std::vector<Term> mappingVariables; 
     std::vector<TriplePattern> triplePatterns;
     std::vector<std::string> allVariables;
 
@@ -139,27 +125,16 @@ class Exception {
 
 
 
+  // Code from boost  that enables us to use tuple as undorderd map key
+  // Reciprocal of the golden ratio helps spread entropy
+  //     and handles duplicates.
+  // See Mike Seymour in magic-numbers-in-boosthash-combine:
+  //     https://stackoverflow.com/questions/4948780
 
-// function has to live in the std namespace 
-// so that it is picked up by argument-dependent name lookup (ADL).
+
 namespace std{
     namespace
     {
-
-
-
-      
-
-
-
-
-
-        // Code from boost
-        // Reciprocal of the golden ratio helps spread entropy
-        //     and handles duplicates.
-        // See Mike Seymour in magic-numbers-in-boosthash-combine:
-        //     https://stackoverflow.com/questions/4948780
-
         template <class T>
         inline void hash_combine(std::size_t& seed, T const& v)
         {
@@ -206,6 +181,28 @@ namespace std{
 
 
 
+  // hash function for Term class
+
+            // hash function for Term class
+
+      //  template <>
+      //   struct hash<Term>
+      //   {
+      //     std::size_t operator()(const Term& k) const
+      //     {
+      //       using std::size_t;
+      //       using std::hash;
+      //       using std::string;
+
+      //       // Compute individual hash values for first,
+      //       // second and third and combine them using XOR
+      //       // and bit shifting:
+
+      //       return ((hash<string>()(k.name)
+      //               ^ (hash<Term::TermType>()(k.type) << 1)) >> 1)
+      //               ^ (hash<int>()(k.value) << 1);
+      //     }
+      //   };
 
 
 

@@ -4,8 +4,17 @@
 #include<stdint.h>
 
 
-// using namespace std::vector;
-// using namespace std::tuple;
+
+//--------------------------------------------------------------------
+// RdfIndex::add
+//
+// Input    : 
+// Output   :  true if it sucessfully added
+// Purpose  : Adds encoded triple to memory and indeces
+// Condition: All given ID are integers
+// PostCond :
+// Return   : true if operation is successful.  false if the literall already exist in the memory.
+//--------------------------------------------------------------------
 
 
 
@@ -84,9 +93,6 @@ bool RdfIndex::add(id_t s, id_t p, id_t o){
     } // endif  x in Ispo
     // else do nothing: don't add a duplicate
 
-
-
-
     return false;
 }
 
@@ -97,12 +103,18 @@ void RdfIndex::insert_xy_list(triple_pointer_t & Tnew, triple_pointer_t & T, Tri
     tripleTable[T].nextptr[columnId]=Tnew;
 }
 
-// TASK helper
+
+// Helper function that give a type of a resource given it's encoded ID
+Term::TermType RdfIndex::resourceType(id_t resource_id) const{
+    if(std::get<1>(id_2_res_v[resource_id]))// is IRI
+        return Term::TermType::IRI;
+    else return Term::TermType::LITERAL;
+}
 
 subtempIteratorType RdfIndex::mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term){
     subtempIteratorType mappings;
     if(s_term.isVariable()){
-       mappingType t = make_tuple( s_term, Term(Term::TermType::LITERAL,row.Rs, s_term.name) );  // TASK not necessary literal ... .. and the third arugment is for debugging purposesimplement a way to find type of terms from their intiger encodings..
+       mappingType t = make_tuple( s_term, Term(resourceType(row.Rs),row.Rs) );
        mappings.push_back(t);  
     }
     // else{
@@ -112,7 +124,7 @@ subtempIteratorType RdfIndex::mapVariables(RdfIndex::Triple & row, Term & s_term
     // }
 
     if(p_term.isVariable()){
-        mappingType t = make_tuple(p_term, Term(Term::TermType::LITERAL,row.Rp, p_term.name));
+        mappingType t = make_tuple(p_term, Term(resourceType(row.Rp),row.Rp));
         mappings.push_back(t);  
     }
     // else{
@@ -121,7 +133,7 @@ subtempIteratorType RdfIndex::mapVariables(RdfIndex::Triple & row, Term & s_term
     // }
 
     if(o_term.isVariable()){
-        mappingType t = make_tuple(o_term,Term(Term::TermType::LITERAL,row.Ro, o_term.name));
+        mappingType t = make_tuple(o_term,Term(resourceType(row.Ro),row.Ro));
         mappings.push_back(t);  
     }
     // else{
@@ -135,7 +147,19 @@ subtempIteratorType RdfIndex::mapVariables(RdfIndex::Triple & row, Term & s_term
 }
 
 
-RdfIndex::Iterator& RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
+
+
+//--------------------------------------------------------------------
+// RdfIndex::evaluate
+//
+// Input    : Term type of subject, predicate and object / can be varibles or facts
+// Output   :  true if it sucessfully added
+// Purpose  : to match variables to data in the the RDF graphs
+// Condition: The integer encoding that might be in the terms have to be in the memory
+// PostCond : Don't change the database,
+// Return   : Iterator of the first matched element in the memory, if not it returns iterator pointing to -1 pointer...
+//--------------------------------------------------------------------
+RdfIndex::Iterator& RdfIndex::evaluate(Term & s_term, Term & p_term, Term & o_term){ 
 
 //     tempIterator result;
 //     //bindings
@@ -454,7 +478,7 @@ RdfIndex::IndexIterator& RdfIndex::IndexIterator::operator++(){
 
 
 //version 1 evaluate without iterator 
-// tempIterator RdfIndex::evaluate2(Term & s_term, Term & p_term, Term & o_term){ //TASK put appropriate type
+// tempIterator RdfIndex::evaluate2(Term & s_term, Term & p_term, Term & o_term){ 
 
 //     tempIterator result;
 //     //bindings

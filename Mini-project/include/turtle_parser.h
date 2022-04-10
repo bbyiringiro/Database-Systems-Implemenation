@@ -27,7 +27,7 @@ class TurtleParser: public Parser
 
 
 
-        const static size_t TRIPLE_READ_BUFFER_SIZE = 1024*10;
+        const static size_t TRIPLE_READ_BUFFER_SIZE = 1024*100;
         char tripleBuffer[TRIPLE_READ_BUFFER_SIZE];
         int current_res_id = 0;
 

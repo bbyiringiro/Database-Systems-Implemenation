@@ -24,19 +24,12 @@ SparqlParser::SparqlParser(id_2_resource_type & _res_2_id_map, std::ifstream  &_
 Query SparqlParser::parseStringQuery(std::string queryString){
     ss.clear();
     ss<<queryString;
-     
-     
-
     return parseQuery();
     
 }
 
-//TASK Check if variables can be devided by commas or others
-
-
 
 Query SparqlParser::parseQuery(){
-    //TASK check if it exist and throw expection
 
     Query query =Query();
     
@@ -74,8 +67,7 @@ Query SparqlParser::parseQuery(){
                 std::cout<<"SYNTAX ERROR in the query at ..."<<variable<<"... You should have WHERE"<<std::endl;
                 return Query();
             }
-            if(variable.size() > 5){// in case no space between where and the the next, like WHERE{?....
-            //TASK
+            if(variable.size() > 5){// in case no space between where and the the next, like WHERE{?.... Extension s
             extraCharactersAfterWhere =variable.substr(5, variable.size());
             }
             break;
@@ -83,28 +75,13 @@ Query SparqlParser::parseQuery(){
     }
 
 
-    // //TEST
-    // std::cout<< "COMMAND ID: "<< query.command<<std::endl;
-    // //Parse Mapping Variables
-    
-    // //TEST print all mapping variables
-    // std::cout<< "Mapping VARIABLES: " ;
-    // for(Term & t: query.mappingVariables) std::cout<< t.name <<", ";
-    // std::cout<< std::endl;
 
-
-    // //TEST all variables in the query
-
-    // // std::cout<< "Variables in Body: " ;
-    // // for(auto & t: query.allVariables) std::cout<< t <<", ";
-    // // std::cout<< std::endl;
-
-    if(!processBody(extraCharactersAfterWhere, query)){
-        return Query();
+    if( !processBody(extraCharactersAfterWhere, query)){
+        return Query(); // returns empty query to be handled by another function
     }
 
 
-    // Validate
+    // Validate to make sure all variables are in the body
     for(Term & varTerm: query.mappingVariables){
         bool isInBody = false;
         for (std::string & varB: query.allVariables){
@@ -114,46 +91,23 @@ Query SparqlParser::parseQuery(){
             }
         }
         if(!isInBody){
-            std::cout<< " All variable in the mapping have to appear in the body, ?"<<varTerm.name<<" is not in the body" <<std::endl;
+            std::cout<< "Query ERRoR: All variable in the mapping have to appear in the body, ?"<<varTerm.name<<" is not in the body" <<std::endl;
             return Query();
         }
     }
 
-    //TEST
-
-
-        // if(==""){
-        //     std::cout<<"No query found "<<std::endl;;
-        //     return;
-        // }
-
-    return query;
-    
-
-    
+    return query; 
 
 }
 
 
-
+// processes the body of the query string and add the patterns to the Query &query
 bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
 
-    std::cout<< extraonLastToken<<std::endl;
 
      bool seenClosedBrace = false;
      char ch, lastreadchar;
-     if(!readUntilNoSpace(ch)) {
-         std::cout<< "Syntax Error in the body :"+ch <<std::endl;
-         return false;
-     }
-     if(extraonLastToken == "" && ch !='{'){
-
-         return false;
-     }else{
-         //handle the extraonLastToken
-     }
-
-     //get tripplePatters
+     readUntilNoSpace(ch);
 
     while(!seenClosedBrace){
         // read subject term
@@ -165,16 +119,20 @@ bool SparqlParser::processBody(std::string  extraonLastToken, Query &query){
 
         if(parsePattern(subject, predicate, object, lastreadchar, query)){
             query.triplePatterns.push_back(TriplePattern(subject, predicate, object));
-            std::string temp="";
-            if(!readUntil('.',temp)){
-                std::cout<< "One pattern is not closed with a dot(.) from here ..." <<"temp"<<std::endl;
+            std::string readstr="";
+            Status status = isNextTripleAvailable(readstr);
+            // std::cout<<"here "<<readstr<< status<<endl;
+            if(status == OK) continue;
+            else if(status == DONE) seenClosedBrace= true;
+            else{
+                std::cout<< "1 One pattern is not closed with a dot(.) from here ..." <<readstr<<std::endl;
                 return false;
             }
         }
         else{
             if(lastreadchar ==END_OF_QUERY_CHAR) seenClosedBrace= true;
             else{
-                std::cout<< "One pattern is not closed with a from here ..." <<"temp"<<std::endl;
+                std::cout<< "2 One pattern is not closed with a from here ..." <<lastreadchar<<std::endl;
                 return false;
             }
         }
@@ -197,20 +155,20 @@ bool SparqlParser::parsePattern(Term & subject, Term & predicate, Term & object,
             std::cout<< "Syntax error in the query near ... "<< subject.name<<std::endl;
         return false;
     }
-    std::cout<<subject.name<< " -- ";
+    // std::cout<<subject.name<< " -- ";
 
 
     if(!parseTerm(predicate, lastreadchar, query)) {
         std::cout<< "Syntax error in the query near ... "<< predicate.name<<std::endl;
         return false;
     }
-    std::cout<<predicate.name<< " -- ";
+    // std::cout<<predicate.name<< " -- ";
 
     if(!parseTerm(object, lastreadchar, query)) {
         std::cout<< "Syntax error in the query near ... "<< object.name<<std::endl;
         return false;
     }
-    std::cout<<object.name<<std::endl;
+    // std::cout<<object.name<<std::endl;
 
 
     return true;
@@ -235,9 +193,8 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
             t.name = name;
             auto iri_key=make_tuple(name, true);
             if(res_2_id_map.find(iri_key) == res_2_id_map.end()){
-                //TASK uncomment
-                std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
-                return false; // TASK  status instead, whether is just fail or jsut not found in the memeory...
+                // std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
+                // return false; // 
             }
             t.value=res_2_id_map[iri_key];
         }
@@ -247,16 +204,15 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
             std::string name ="";
 
             if (!readUntil('\"',name)){
-                std::cout<< "Error reading term in a pattern, could not find closing quote \" " <<std::endl;
-                return false;
+                // std::cout<< "Error reading term in a pattern, could not find closing quote \" " <<std::endl;
+                // return false;
             }
             t.name = name;
             auto literal_key=make_tuple(name, false);
             if(res_2_id_map.find(literal_key) == res_2_id_map.end()){
-                //TASK
 
-                std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
-                return false;
+                // std::cout<<std::endl<< "(Error: Resource name:(" << name<<") not found in memory)"<<std::endl;
+                // return false;
             }
             t.value=res_2_id_map[literal_key];
         }
@@ -265,7 +221,7 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
             t.type=Term::TermType::VAR;
             std::string name ="";
             if(!readToken(name)){
-                std::cout<< " Error reading variable in a pattern" <<std::endl;
+                std::cout<< "Error reading variable in a pattern" <<std::endl;
 
                 return false;
             }
@@ -287,6 +243,20 @@ bool SparqlParser::parseTerm(Term & t, char & lastreadchar, Query & query)
     //      //check if the file is query was processed correctly
     //  }
      return true;
+}
+
+
+// checks if there is there is another pattern to process
+
+Status SparqlParser::isNextTripleAvailable(std::string & token){
+   char ch;
+    while(ch!='.' && ch!='}'){
+        token +=ch;
+        if(!next(ch)) break;
+    }
+    if(ch == '.') return OK;
+    else if (ch=='}') return DONE;
+    else return FAIL;
 }
 
 

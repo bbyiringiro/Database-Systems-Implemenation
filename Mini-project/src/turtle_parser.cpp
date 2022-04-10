@@ -13,29 +13,11 @@
 
 // #include "util.h"
 
-//TASK update according to official specifications and make as like sparql parser
 
 using std::vector;
 using std::unordered_map;
 using std::cout;
 
-
-
-std::vector<std::string> split(std::string& str, const std::string& delim)
-{
-    std::vector<std::string> tokens;
-    size_t prev = 0, pos = 0;
-    do
-    {
-        pos = str.find(delim, prev);
-        if (pos == std::string::npos) pos = str.length();
-        std::string token = str.substr(prev, pos-prev);
-        if (!token.empty()) tokens.push_back(token);
-        prev = pos + delim.length();
-    }
-    while (pos < str.length() && prev < str.length());
-    return tokens;
-}
 
 TurtleParser::TurtleParser():Parser(tripleBuffer, TRIPLE_READ_BUFFER_SIZE){
 }
@@ -44,6 +26,12 @@ TurtleParser::TurtleParser(std::ifstream  &_filestream ):Parser(_filestream, tri
 
 }
 
+//--------------------------------------------------------------------
+// TurtleParser::encode_resource
+// helper for enteger encoding
+ 
+// Return   : returns an id of encoded triple in memory
+//--------------------------------------------------------------------
 
 id_t TurtleParser::encode_resource(std::tuple<std::string, bool> resource_name_type, 
             id_t  current_res_id, 
@@ -70,6 +58,13 @@ id_t TurtleParser::encode_resource(std::tuple<std::string, bool> resource_name_t
 
 }
 
+//--------------------------------------------------------------------
+// TurtleParser::parseResource
+// helper private function to parse resources
+ 
+// Return   : true if parsing is successful or false if it fails, there is an error
+//--------------------------------------------------------------------
+
 
 bool TurtleParser::parseResource(std::string & resource_name, bool & resourceType){
     char ch;
@@ -91,8 +86,8 @@ bool TurtleParser::parseResource(std::string & resource_name, bool & resourceTyp
                 std::cout<< "Error reading term in a trile, could not find closing the quote \" " <<std::endl;
                 return false;
             }
-            resourceType=false;
-            // if(next(ch)){
+            resourceType=false; // false if it is not IRI
+            // if(next(ch)){  // for extended turle with type parsing
             //     // lastChar=ch;
             //     if(ch=='^'){
             //         cout<<("here..."+ch) <<endl;
@@ -125,14 +120,24 @@ bool TurtleParser::parseResource(std::string & resource_name, bool & resourceTyp
 
 }
 
+
+//--------------------------------------------------------------------
+// TurtleParser::parseFile
+//
+// Input    : 
+// Output   :  true if it sucessfully added
+// Purpose  : parse a n-triples file and added the to memeory rdfIndex
+// Condition: The object should have been initaiated with an istream either ifstream or  a string passed to its sstream member
+// PostCond : added triples to rdfIndex refereence 
+// Return   : integer of numbers of triples added to rdfIndex
+//--------------------------------------------------------------------
+
 int TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_resource_type & res_2_id_map, RdfIndex & rdfIndex){
 
     in_stream.clear();
 
     int triples_num=0;
     
-
-// if ( fin.is_open() ) {// TASK check file open...
     bool possibleEOF = false;
     bool subType;
     bool predType;
@@ -207,7 +212,7 @@ int TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_
 
 
 
-        // line based version 1
+        // line based version 1 of add function 
         // while (turtleFile.good())
         // {
         //     getline(turtleFile, line);
@@ -263,4 +268,22 @@ int TurtleParser::parseFile(vector<tuple<std::string, bool>> & id_2_res_v, id_2_
     //     std::cout << "Couldn't open file at : "<< filepath << std::endl;
     //     return false;
     // }
+
+
+//     std::vector<std::string> split(std::string& str, const std::string& delim)
+// {
+//     std::vector<std::string> tokens;
+//     size_t prev = 0, pos = 0;
+//     do
+//     {
+//         pos = str.find(delim, prev);
+//         if (pos == std::string::npos) pos = str.length();
+//         std::string token = str.substr(prev, pos-prev);
+//         if (!token.empty()) tokens.push_back(token);
+//         prev = pos + delim.length();
+//     }
+//     while (pos < str.length() && prev < str.length());
+//     return tokens;
+// }
+
 

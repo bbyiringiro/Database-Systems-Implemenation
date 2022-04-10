@@ -30,6 +30,7 @@ class SparqlParser: public Parser
         SparqlParser(id_2_resource_type &  res_2_id_map, std::ifstream & _filestream );
         Query parseQuery();
         Query parseStringQuery(std::string queryString);
+        Status isNextTripleAvailable(std::string & token);
 
 
     

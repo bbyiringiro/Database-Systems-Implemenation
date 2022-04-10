@@ -55,9 +55,12 @@ bool Parser::readToken(std::string & token){
 
     do{
         token +=ch;
-        if(!next(ch)) return false;
+        if(!next(ch)) {
+            token ="";
+            return false;
+        }
     }while(!std::isspace(ch));
-    std::cout << token << std::endl;
+    // std::cout << token << std::endl;
     return true;
 
 }

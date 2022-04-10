@@ -53,7 +53,7 @@ class RdfIndex{
                         throw; // should not allow access a null pointer
                     }
                     RdfIndex::Triple row = rdfIndex.tripleTable[curTriplePtr];
-                    return RdfIndex::mapVariables(row, *s_term, *p_term, *o_term);
+                    return rdfIndex.mapVariables(row, *s_term, *p_term, *o_term);
                 }
 
                 IndexIterator& operator++();
@@ -109,7 +109,7 @@ class RdfIndex{
 
         std::vector<Triple> tripleTable;
         // IndexIterator iterator;
-        RdfIndex():currIterator(Iterator(-1, *this)), endIterator(-1, *this){
+        RdfIndex(vector<tuple<std::string, bool>> & _id_2_res_v):id_2_res_v(_id_2_res_v),currIterator(Iterator(-1, *this)), endIterator(-1, *this){
             // triple_pointer_t t=0;
             // currIterator = Iterator(0);
         }
@@ -117,7 +117,7 @@ class RdfIndex{
 
         Iterator & evaluate(Term & s_term, Term & p_term, Term & o_term);
         tempIterator evaluate2(Term & s_term, Term & p_term, Term & o_term);
-        static subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term);
+        subtempIteratorType mapVariables(RdfIndex::Triple & row, Term & s_term, Term & p_term, Term & o_term);
 
         triple_pointer_t getTablesize();
 
@@ -132,6 +132,7 @@ class RdfIndex{
 
     private:
         void insert_xy_list(triple_pointer_t & Tnew, triple_pointer_t & T, Triple & t, unsigned short Nidx);
+        Term::TermType resourceType(id_t resource_id) const;
 
         unsigned short Nsp =0;
         unsigned short Np = 1;
@@ -140,6 +141,8 @@ class RdfIndex{
         // linkedList sizes needed for evaluation 
         size_t sp_linked_list_size =0;
         size_t op_linked_list_size =0;
+        vector<tuple<std::string, bool>> & id_2_res_v;
+
 
         
 };

@@ -28,15 +28,6 @@ void ltrim(std::string &s) {
     rtrim(s);
 }
 
- std::string ltrim_copy(std::string s) {
-    ltrim(s);
-    return s;
-}
-
- std::string rtrim_copy(std::string s) {
-    rtrim(s);
-    return s;
-}
 
  std::string trim_copy(std::string s) {
     trim(s);
